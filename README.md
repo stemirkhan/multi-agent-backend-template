@@ -133,9 +133,44 @@ Phase 5 — Review
 - `./scripts/verify.sh` завершается с exit code `0`;
 - нет blocker issues по итогам review.
 
+## Запуск через run.sh
+
+В корне проекта есть обёртка `run.sh` для типовых запусков.
+
+Проверки:
+
+```bash
+./run.sh
+./run.sh verify
+```
+
+Multi-agent запуск Codex:
+
+```bash
+./run.sh codex
+./run.sh codex backend_tz_from_template.md
+```
+
+Справка по командам:
+
+```bash
+./run.sh help
+```
+
+Требования для `./run.sh codex`:
+
+- команда `codex` доступна в `PATH`;
+- в Codex включен feature flag `multi_agent`.
+
 ## How to test
 
 Базовый entrypoint проверки:
+
+```bash
+./run.sh verify
+```
+
+Прямой запуск verify-скрипта:
 
 ```bash
 ./scripts/verify.sh
