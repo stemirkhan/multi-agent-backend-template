@@ -50,7 +50,15 @@ run_codex() {
   fi
 
   local prompt
-  prompt="Ты Orchestrator. Запусти multi-agent workflow по README.md и ${tz_file}: Architect -> (DB+API) -> Worker -> Tests+Monitor -> Reviewer. В конце дай сводку: что готово, что блокирует, кто следующий."
+  prompt="$(cat <<EOF
+Ты Orchestrator. Работай итерациями Phase 1..5, пока не выполнены все условия:
+1) ./scripts/verify.sh -> exit 0
+2) у Reviewer нет blocker-findings
+3) Acceptance checklist в ${tz_file} закрыт.
+Если находишь blocker — сам запускай CR, назначай нужного агента, вноси правки и перезапускай только нужные фазы.
+Останавливайся только если нужен внешний ввод (секрет, доступ, бизнес-решение) — тогда задай один конкретный вопрос.
+EOF
+)"
 
   codex --enable multi_agent "$prompt"
 }
