@@ -1,8 +1,9 @@
 [features]
 multi_agent = true
 
-agents.max_threads = 6
-agents.max_depth = 2
+[agents]
+max_threads = 6
+max_depth = 2
 
 [agents.orchestrator]
 description = "Оркестратор: управляет фазами, собирает результаты, ловит конфликты."
