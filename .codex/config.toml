@@ -1,0 +1,41 @@
+[features]
+multi_agent = true
+
+agents.max_threads = 6
+agents.max_depth = 2
+
+[agents.orchestrator]
+description = "Оркестратор: управляет фазами, собирает результаты, ловит конфликты."
+config_file = "agents/orchestrator.toml"
+
+[agents.architect]
+description = "Архитектура: NFR, границы модулей, решения по очередям/кэшу."
+config_file = "agents/architect.toml"
+
+[agents.api]
+description = "API: контракты, OpenAPI, схемы, ошибки, пагинация, идемпотентность."
+config_file = "agents/api.toml"
+
+[agents.db]
+description = "DB: схема, миграции Alembic, индексы, сиды."
+config_file = "agents/db.toml"
+
+[agents.worker]
+description = "Implementation: пишет код фич строго по контрактам API/DB/Architect."
+config_file = "agents/worker.toml"
+
+[agents.tests]
+description = "Tests: unit+integration+contract, фикстуры, матрица доступов."
+config_file = "agents/tests.toml"
+
+[agents.reviewer]
+description = "Reviewer: безопасность, корректность, несостыковки."
+config_file = "agents/reviewer.toml"
+
+[agents.explorer]
+description = "Explorer: read-only, читает код/ТЗ, делает карту проекта."
+config_file = "agents/explorer.toml"
+
+[agents.monitor]
+description = "Monitor: read-only, запускает команды и суммаризирует вывод."
+config_file = "agents/monitor.toml"

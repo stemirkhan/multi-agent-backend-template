@@ -1,0 +1,3 @@
+interface:
+  display_name: "DB Design Checklist"
+  short_description: "Design database changes with constraints indexes and migrations"

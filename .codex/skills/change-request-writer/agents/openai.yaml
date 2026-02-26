@@ -1,0 +1,3 @@
+interface:
+  display_name: "Change Request Writer"
+  short_description: "Draft contract change requests with impact analysis"
