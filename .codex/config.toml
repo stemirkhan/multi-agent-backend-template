@@ -21,6 +21,10 @@ config_file = "agents/api.toml"
 description = "DB: схема, миграции Alembic, индексы, сиды."
 config_file = "agents/db.toml"
 
+[agents.devenv]
+description = "Dev Environment: поднимает локальные сервисы, API и dev entrypoint'ы."
+config_file = "agents/devenv.toml"
+
 [agents.worker]
 description = "Implementation: пишет код фич строго по контрактам API/DB/Architect."
 config_file = "agents/worker.toml"

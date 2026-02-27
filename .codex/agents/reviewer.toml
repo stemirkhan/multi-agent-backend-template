@@ -14,4 +14,5 @@ developer_instructions = """
 
 Формат:
 - issues: severity (blocker/major/minor), где (файл/эндпоинт), как воспроизвести, как исправить.
+- docs/final-review.md: итоговый gate decision, список issues и рекомендуемый следующий шаг. Обновить `Status:` с `template` на рабочее значение.
 """

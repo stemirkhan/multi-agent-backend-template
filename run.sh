@@ -51,11 +51,21 @@ run_codex() {
 
   local prompt
   prompt="$(cat <<EOF
-Ты Orchestrator. Работай итерациями Phase 1..5, пока не выполнены все условия:
-1) ./scripts/verify.sh -> exit 0
-2) у Reviewer нет blocker-findings
-3) Acceptance checklist в ${tz_file} закрыт.
-4) Для backend-части есть изменения в runtime-коде и/или миграциях и/или тестах (не только docs/.codex).
+Ты Orchestrator FastAPI-only шаблона. Не предлагай другой web stack. Работай итерациями Phase 1..5, пока не выполнены все условия:
+1) Обязательные фазовые артефакты обновлены из template-state:
+   - docs/architecture.md -> Status != template
+   - есть минимум один docs/adr/ADR-*.md
+   - openapi.yaml -> x-template-status != template
+   - docs/dev-environment.md -> Status != template
+   - docs/schema-decisions.md -> Status != template
+   - docs/test-matrix.md -> Status != template
+   - docs/final-review.md -> Status != template
+2) ./scripts/verify.sh -> exit 0
+3) у Reviewer нет blocker-findings
+4) Acceptance checklist в ${tz_file} закрыт.
+5) Для backend-части есть изменения в runtime-коде и/или миграциях и/или тестах (не только docs/.codex).
+Проверяй фазовые артефакты по файлам и статус-маркерам, а не по summary агентов.
+Если для реализации/тестов/verify нужен поднятый стек или API — сначала назначай Devenv.
 Если находишь blocker — сам запускай CR, назначай нужного агента, вноси правки и перезапускай только нужные фазы.
 Останавливайся только если нужен внешний ввод (секрет, доступ, бизнес-решение) — тогда задай один конкретный вопрос.
 EOF

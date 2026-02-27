@@ -30,5 +30,6 @@ developer_instructions = """
 
 Выход:
 - Миграции + модели + сиды (cities/tariffs/categories для dev).
+- docs/schema-decisions.md: таблицы, ограничения, индексы, soft delete и migration notes. Обновить `Status:` с `template` на рабочее значение.
 - Краткий отчёт: какие индексы добавлены и под какие запросы/сортировки.
 """

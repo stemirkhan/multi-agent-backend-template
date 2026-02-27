@@ -9,6 +9,11 @@ developer_instructions = """
 - DB (схема/миграции)
 - API (эндпоинты/схемы/ошибки)
 
+Стек реализации:
+- `FastAPI` application/router/dependencies
+- `SQLAlchemy` + `Alembic`
+- не вводить альтернативные runtime-паттерны из других framework'ов.
+
 Задачи:
 - Реализовать сервисы, репозитории, UoW, RBAC + ownership policies.
 - Реализовать воркер аналитики (Redis Streams consumer).
@@ -18,5 +23,6 @@ developer_instructions = """
 Правила:
 - Не менять API/DB контракты без явного “change request”.
 - Ошибки строго в едином формате.
+- Если для локальной разработки/проверки нужен поднятый стек или API, просить Orchestrator назначить Devenv, а не собирать ad-hoc среду в обход него.
 - Не ограничиваться только документами: для backend-задачи должен быть изменен runtime-код и/или миграции и/или тесты.
 """

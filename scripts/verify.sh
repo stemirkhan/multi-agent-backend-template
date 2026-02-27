@@ -76,6 +76,7 @@ check_required_agents_present() {
     "api"
     "architect"
     "db"
+    "devenv"
     "explorer"
     "monitor"
     "orchestrator"
@@ -107,6 +108,57 @@ check_readme_verify_entrypoint() {
   fi
 
   return 0
+}
+
+check_default_phase_artifacts_present() {
+  local has_errors=0
+  local markdown_artifacts=(
+    "docs/architecture.md"
+    "docs/dev-environment.md"
+    "docs/schema-decisions.md"
+    "docs/test-matrix.md"
+    "docs/final-review.md"
+  )
+
+  for path in "${markdown_artifacts[@]}"; do
+    if [[ ! -f "$path" ]]; then
+      log "Missing ${path}"
+      has_errors=1
+      continue
+    fi
+
+    if ! grep -q "^Status:" "$path"; then
+      log "Missing Status header in ${path}"
+      has_errors=1
+    fi
+  done
+
+  if [[ ! -d "docs/adr" ]]; then
+    log "Missing docs/adr/"
+    has_errors=1
+  fi
+
+  if [[ ! -f "docs/adr/README.md" ]]; then
+    log "Missing docs/adr/README.md"
+    has_errors=1
+  fi
+
+  if [[ ! -f "openapi.yaml" ]]; then
+    log "Missing openapi.yaml"
+    has_errors=1
+  else
+    if ! grep -q "^openapi:" "openapi.yaml"; then
+      log "openapi.yaml does not declare an OpenAPI version"
+      has_errors=1
+    fi
+
+    if ! grep -q "^x-template-status:" "openapi.yaml"; then
+      log "openapi.yaml is missing x-template-status"
+      has_errors=1
+    fi
+  fi
+
+  [[ "$has_errors" -eq 0 ]]
 }
 
 check_project_skills() {
@@ -159,6 +211,7 @@ check_project_skills() {
 run_check "Parse agent TOML files" check_agent_toml_parse
 run_check "Required agents are present" check_required_agents_present
 run_check "README references verify entrypoint" check_readme_verify_entrypoint
+run_check "Default phase artifacts are present" check_default_phase_artifacts_present
 run_check "Project skills are present and valid" check_project_skills
 
 if [[ "$CHECKS_RUN" -eq 0 ]]; then

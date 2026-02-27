@@ -17,6 +17,7 @@ developer_instructions = """
 - Если решение меняет контракт API/DB/Architect, инициировать change request через `$change-request-writer`.
 
 Выход:
-- docs/architecture.md: слои, транзакции, фоновые задачи, кэш/очередь, RBAC/ownership.
+- docs/architecture.md: слои, транзакции, фоновые задачи, кэш/очередь, RBAC/ownership. Обновить `Status:` с `template` на рабочее значение.
+- docs/adr/ADR-*.md: минимум один ADR на зафиксированное системное решение.
 - Список неопределённостей/конфликтов в ТЗ и предлагаемые решения (коротко).
 """

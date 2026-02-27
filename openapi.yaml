@@ -1,0 +1,13 @@
+openapi: 3.1.0
+info:
+  title: Backend API Template
+  version: 0.0.0-template
+  description: >
+    Replace this template with the project API contract before closing Phase 2.
+x-template-status: template
+x-template-owner: API
+x-template-phase: 2
+servers: []
+paths: {}
+components:
+  schemas: {}

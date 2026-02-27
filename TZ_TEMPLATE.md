@@ -3,6 +3,12 @@
 Дата: <YYYY-MM-DD>
 Owner: <NAME/TEAM>
 
+## 0. Stack Assumptions
+- Web/API framework: `FastAPI`
+- Schemas: `Pydantic`
+- Persistence/migrations: `SQLAlchemy` + `Alembic`
+- Dev containers: `podman` + `podman-compose`
+
 ## 1. Цель и границы
 ### 1.1 Цель MVP
 - <Измеримый бизнес-результат 1>
@@ -100,18 +106,30 @@ Owner: <NAME/TEAM>
 - [ ] Миграции применяются на чистой БД
 - [ ] RBAC/ownership покрыт тестами
 - [ ] Idempotency подтверждена тестами
+- [ ] Локальная dev-среда и API стартуют воспроизводимо
+- [ ] Фазовые артефакты обновлены: `docs/architecture.md`, `docs/adr/ADR-*.md`, `openapi.yaml`, `docs/dev-environment.md`, `docs/schema-decisions.md`, `docs/test-matrix.md`, `docs/final-review.md`
 - [ ] `./scripts/verify.sh` завершился с exit code 0
 
 ## 14. Ownership по агентам
-- Architect: владеет разделами 5/6 и архитектурными ADR
-- DB: владеет разделом 7
-- API: владеет разделом 8
-- Worker: реализация по контрактам
-- Tests: стратегия и тесты из раздела 11
-- Reviewer: финальная проверка рисков/безопасности
+- Architect: владеет разделами 5/6, `docs/architecture.md` и архитектурными ADR в `docs/adr/`
+- DB: владеет разделом 7, SQLAlchemy/Alembic слоем и `docs/schema-decisions.md`
+- API: владеет разделом 8, FastAPI/Pydantic контрактом и `openapi.yaml`
+- Devenv: локальный FastAPI runtime/bootstrap, `docs/dev-environment.md`
+- Worker: реализация FastAPI backend по контрактам
+- Tests: стратегия и тесты FastAPI backend из раздела 11, `docs/test-matrix.md`
+- Reviewer: финальная проверка рисков/безопасности, `docs/final-review.md`
 - Monitor: запуск verify и сводка результатов
 
-## 15. Change Request Protocol
+## 15. Фазовые артефакты по умолчанию
+- Phase 1: `docs/architecture.md`, `docs/adr/ADR-*.md`
+- Phase 2: `openapi.yaml`, `docs/schema-decisions.md`
+- Phase 3: `docs/dev-environment.md`
+- Phase 4: `docs/test-matrix.md`
+- Phase 5: `docs/final-review.md`
+- Markdown-артефакты должны обновить `Status:` с `template` на рабочее значение.
+- `openapi.yaml` должен обновить `x-template-status:` с `template` на рабочее значение.
+
+## 16. Change Request Protocol
 - Что меняем: <контракт/правило/поле/endpoint>
 - Почему: <блокер/несовместимость>
 - Impact: <API/DB/tests/rollout>

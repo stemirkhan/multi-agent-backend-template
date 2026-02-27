@@ -1,7 +1,9 @@
-# Multi-Agent Backend Workflow (Universal Template)
+# Multi-Agent FastAPI Backend Workflow Template
 
-Этот README описывает универсальный процесс работы multi-agent команды над backend-проектом.  
-Документ можно использовать как базовый playbook для MVP и расширять под конкретный домен.
+Этот README описывает процесс работы multi-agent команды над FastAPI backend-проектом.  
+Шаблон зафиксирован под FastAPI stack и не рассчитан на другие web-framework'и без отдельной адаптации.
+
+Подробный разбор того, как работает шаблон "от и до": `docs/TEMPLATE_DETAILED_GUIDE.md`
 
 ## Цель
 
@@ -11,6 +13,13 @@
 - API и БД совместимы и стабильны;
 - тесты и verify-проходы зелёные;
 - нет blocker-рисков по безопасности и корректности.
+
+## Stack Assumptions
+
+- Web/API framework: `FastAPI`
+- Schemas: `Pydantic`
+- Persistence/migrations: `SQLAlchemy` + `Alembic`
+- Dev containers: `podman` + `podman-compose`
 
 ## Роли агентов
 
@@ -23,36 +32,47 @@
 ## Architect
 
 - Фиксирует архитектурные решения (очереди, кэш, границы безопасности, модель консистентности).
-- Пишет архитектурный контракт в `docs/architecture.md`.
+- Пишет архитектурный контракт в `docs/architecture.md` и ADR в `docs/adr/ADR-*.md`.
 - Эскалирует изменения контрактов через Change Request.
 
 ## DB
 
 - Владеет схемой данных, миграциями и индексами.
+- Ведёт журнал schema-level решений в `docs/schema-decisions.md`.
 - Отвечает за ограничения, целостность и миграционную безопасность.
 - Не меняет API-контракты без Change Request.
 
 ## API
 
-- Владеет публичным контрактом (OpenAPI, схемы запрос/ответ, ошибки, идемпотентность).
+- Владеет публичным FastAPI-контрактом в `openapi.yaml` (OpenAPI, схемы запрос/ответ, ошибки, идемпотентность).
 - Проверяет совместимость с БД и архитектурой.
 - Не меняет БД напрямую.
 
+## Devenv
+
+- Владеет локальной dev-средой и reproducible startup flow.
+- При необходимости поднимает зависимости и само API.
+- Для контейнерной dev-среды использует `podman` и `podman-compose`.
+- Ведёт `docs/dev-environment.md` как канонический runtime/bootstrap артефакт.
+
 ## Worker
 
-- Реализует бизнес-логику, сервисы, репозитории и интеграции.
+- Реализует FastAPI runtime: бизнес-логику, сервисы, репозитории и интеграции.
 - Следует контрактам Architect/DB/API.
 - Не меняет архитектурные и контрактные решения без согласования.
 
 ## Tests
 
 - Пишет unit/integration/contract/security тесты.
+- Для integration/contract сценариев исходит из FastAPI/ASGI runtime.
+- Ведёт `docs/test-matrix.md` как канонический список test coverage.
 - Поддерживает матрицу доступов и негативные сценарии.
 - Не переписывает прод-код без необходимости.
 
 ## Reviewer (read-only)
 
 - Ищет дефекты и риски: доступы, гонки, идемпотентность, индексы, утечки секретов.
+- Фиксирует итоговый gate decision в `docs/final-review.md`.
 - Не вносит изменения в код.
 
 ## Explorer (read-only)
@@ -74,42 +94,65 @@ Monitor/Tests запускают проверки в следующем поря
 3. `task verify`
 4. fallback: команды из раздела "How to test" в README
 
-Если нужны контейнеры, предпочтителен Podman, если проект явно не требует `docker compose`.
+Если для dev-среды нужны контейнеры, стандарт проекта: `podman` + `podman-compose`.
 
 ## Workflow по фазам
 
 Phase 1 — Architecture
 
 - Architect фиксирует архитектурные решения и ограничения.
+- Артефакты фазы: `docs/architecture.md` и минимум один `docs/adr/ADR-*.md`.
 
 Phase 2 — Contracts
 
 - DB и API работают параллельно.
 - Orchestrator проверяет совместимость контрактов.
+- Артефакты фазы: `openapi.yaml` и `docs/schema-decisions.md`.
 
-Phase 3 — Implementation
+Phase 3 — Dev Environment + Implementation
 
+- Devenv подготавливает локальную dev-среду и при необходимости поднимает сервисы/API.
 - Worker реализует функциональность строго по контрактам в runtime backend-коде.
+- Артефакт фазы: `docs/dev-environment.md`.
 - Изменения только в документации не считаются завершением Phase 3.
 
 Phase 4 — Testing
 
 - Tests добавляет/обновляет тесты.
 - Monitor запускает verify entrypoint и публикует результат.
+- Артефакт фазы: `docs/test-matrix.md`.
 
 Phase 5 — Review
 
 - Reviewer проводит финальную проверку.
 - При blocker-issue задача возвращается соответствующему владельцу фазы.
+- Артефакт фазы: `docs/final-review.md`.
+
+## Фазовые артефакты по умолчанию
+
+- `docs/architecture.md`: Phase 1, владелец `Architect`.
+- `docs/adr/ADR-*.md`: Phase 1, владелец `Architect`.
+- `openapi.yaml`: Phase 2, владелец `API`.
+- `docs/dev-environment.md`: Phase 3, владелец `Devenv`.
+- `docs/schema-decisions.md`: Phase 2, владелец `DB`.
+- `docs/test-matrix.md`: Phase 4, владелец `Tests`.
+- `docs/final-review.md`: Phase 5, владелец `Reviewer`.
+
+Правило завершения фазы:
+
+- Markdown-артефакт должен существовать и быть обновлён из template-state (`Status:` не равен `template`).
+- `openapi.yaml` должен существовать и быть обновлён из template-state (`x-template-status:` не равен `template`).
+- Orchestrator проверяет фазу по файлам и их статус-маркерам, а не по summary агента.
 
 ## Правила взаимодействия
 
 1. Контракты API/DB/Architecture не меняются без Change Request.
 2. DB не изменяет API-контракт напрямую.
 3. API не изменяет схему БД напрямую.
-4. Worker не переопределяет архитектурные решения.
-5. Reviewer, Explorer и Monitor работают в read-only режиме.
-6. Все конфликтующие решения фиксируются явно и маршрутизируются через Orchestrator.
+4. Devenv владеет startup-командами, env bootstrap и локальными сервисами/API.
+5. Worker не переопределяет архитектурные решения.
+6. Reviewer, Explorer и Monitor работают в read-only режиме.
+7. Все конфликтующие решения фиксируются явно и маршрутизируются через Orchestrator.
 
 ## Change Request Protocol
 
@@ -131,6 +174,8 @@ Phase 5 — Review
 - миграции применяются на чистой БД;
 - идемпотентность критичных mutation endpoint'ов подтверждена тестами;
 - подключены логи/метрики и есть минимальные health-проверки;
+- локальная dev-среда и API стартуют воспроизводимо;
+- обновлены фазовые артефакты по умолчанию: `docs/architecture.md`, `docs/adr/ADR-*.md`, `openapi.yaml`, `docs/dev-environment.md`, `docs/schema-decisions.md`, `docs/test-matrix.md`, `docs/final-review.md`;
 - backend-изменения внесены в исходники и/или миграции и/или тесты (не только в docs/.codex);
 - `./scripts/verify.sh` завершается с exit code `0`;
 - нет blocker issues по итогам review.

@@ -10,7 +10,7 @@ developer_instructions = """
 
 Задачи:
 - Unit: лимиты мастеров, publish rules, смена тарифа, идемпотентность.
-- Integration: API + Postgres + Redis (через средства проекта, без хардкода раннера).
+- Integration: FastAPI ASGI app + Postgres + Redis (через средства проекта, без хардкода раннера).
 - Contract: проверка OpenAPI/схем, единый формат ошибок.
 - Матрица доступов (роль -> endpoint allow/deny) + тесты на запреты.
 
@@ -21,9 +21,11 @@ developer_instructions = """
   2) make verify
   3) task verify
   4) fallback: команды из README ("How to test")
-- Если нужны контейнеры: предпочитать Podman, но если проект явно требует docker compose — следовать проекту.
+- Если тестам нужна контейнерная dev-среда, считать стандартом проекта `podman` + `podman-compose`.
+- Если тестам нужна локальная среда или поднятый API, эскалировать это в Devenv через Orchestrator, а не собирать отдельный runtime bootstrap самостоятельно.
 
 Выход:
+- docs/test-matrix.md: матрица unit/integration/contract/access/idempotency. Обновить `Status:` с `template` на рабочее значение.
 - Список добавленных/обновлённых тестов (unit/integration/contract/access matrix).
 - Какие проверки запускались и их результат (включая exit code).
 """
