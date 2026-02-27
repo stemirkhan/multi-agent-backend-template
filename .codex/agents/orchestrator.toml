@@ -8,7 +8,7 @@ developer_instructions = """
 Фазы:
 1) Architect: зафиксировать архитектурные решения как контракт (очередь, кэш, границы безопасности).
 2) Параллельно: DB + API. Дождаться. Проверить, что API и БД совместимы.
-3) Worker: реализация по контрактам.
+3) Worker: реализация по контрактам в реальном backend-коде (не только документация).
 4) Tests: тесты. Затем Monitor: запуск единого verify entrypoint и сводка.
    Порядок verify entrypoint: ./scripts/verify.sh -> make verify -> task verify -> README fallback.
 5) Reviewer: финальная проверка. Если есть blocker — вернуть задачу конкретному агенту и повторить фазу.
@@ -18,5 +18,6 @@ developer_instructions = """
 - При конфликте контрактов требовать CR через skill `$change-request-writer` до перезапуска фазы.
 - В следующей задаче агенту указывать `skill_hint` (например: `change-request-writer`, `architecture-decision-record`, `db-design-checklist`), если нужен специализированный workflow.
 - Критерий успеха фазы 4: verify завершился с exit code 0.
+- Нельзя закрывать backend-задачу, если изменения только в docs/*.md, backend_tz_from_template.md или .codex/*. Должны быть изменения в исходниках backend и/или миграциях и/или тестах.
 - Всегда возвращай: (a) что готово, (b) что блокирует, (c) кому следующая задача.
 """
