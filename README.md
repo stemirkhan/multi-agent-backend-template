@@ -48,6 +48,50 @@ Machine-readable stack profile проекта: `project-stack.toml`
 
 Если в новом репозитории ещё нет runnable backend skeleton, Orchestrator должен направить Worker на skill `backend-bootstrap` до начала feature-level реализации.
 
+## Быстрый старт с GitHub
+
+### Вариант A. Новый проект в пустой папке
+
+```bash
+git clone https://github.com/stemirkhan/multi-agent-backend-template.git my-backend
+cd my-backend
+cp TZ_TEMPLATE.md backend_tz_from_template.md
+./run.sh verify
+./run.sh codex backend_tz_from_template.md
+```
+
+Если нужен менее интерактивный запуск:
+
+```bash
+./run.sh codex-auto backend_tz_from_template.md
+```
+
+Если проект запускается на изолированной dev-машине и не хочется останавливаться на approvals/sandbox:
+
+```bash
+./run.sh codex-danger backend_tz_from_template.md
+```
+
+### Вариант B. Уже есть backend-проект и нужно влить в него шаблон
+
+Если папка проекта уже не пустая, `git clone ... .` не подойдет. Нормальный путь:
+
+```bash
+cd /path/to/existing-backend
+git clone https://github.com/stemirkhan/multi-agent-backend-template.git /tmp/mab-template
+rsync -av --exclude '.git' /tmp/mab-template/ ./
+rm -rf /tmp/mab-template
+chmod +x run.sh scripts/verify.sh scripts/dev-bootstrap.sh
+./run.sh verify
+./run.sh codex backend_tz_from_template.md
+```
+
+Важно:
+
+- не переносить `.git` из шаблона в существующий проект;
+- сохранить свой origin и свою git-историю проекта;
+- проверить `project-stack.toml` и ТЗ перед первым прогоном.
+
 ## Что должен заполнить пользователь
 
 До первого прогона пользователь должен явно заполнить хотя бы эти входы:

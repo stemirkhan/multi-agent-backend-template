@@ -1064,6 +1064,29 @@ Gatekeeper не должен делать глубокий аудит вмест
 
 ### Шаг 1. Скопировать шаблон в новый репозиторий
 
+Если стартуем с GitHub в пустую папку:
+
+```bash
+git clone https://github.com/stemirkhan/multi-agent-backend-template.git my-backend
+cd my-backend
+```
+
+Если шаблон нужно влить в уже существующий backend-репозиторий:
+
+```bash
+cd /path/to/existing-backend
+git clone https://github.com/stemirkhan/multi-agent-backend-template.git /tmp/mab-template
+rsync -av --exclude '.git' /tmp/mab-template/ ./
+rm -rf /tmp/mab-template
+chmod +x run.sh scripts/verify.sh scripts/dev-bootstrap.sh
+```
+
+Важно:
+
+- не переносить `.git` из шаблона в существующий проект;
+- не делать nested git repository вместо нормального merge шаблонных файлов;
+- после копирования сразу проверить `project-stack.toml` и путь к ТЗ.
+
 После этого в репозитории уже будут:
 
 - multi-agent config;
