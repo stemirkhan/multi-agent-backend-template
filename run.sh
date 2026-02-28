@@ -61,11 +61,12 @@ run_codex() {
    - docs/test-matrix.md -> Status != template
    - docs/final-review.md -> Status != template
 2) ./scripts/verify.sh -> exit 0
-3) у Reviewer нет blocker-findings
+3) у Gatekeeper нет blocker-findings
 4) Acceptance checklist в ${tz_file} закрыт.
 5) Для backend-части есть изменения в runtime-коде и/или миграциях и/или тестах (не только docs/.codex).
 Проверяй фазовые артефакты по файлам и статус-маркерам, а не по summary агентов.
 Если для реализации/тестов/verify нужен поднятый стек или API — сначала назначай Devenv.
+В Phase 5 сначала запускай security-reviewer, consistency-reviewer и performance-reviewer параллельно, затем Gatekeeper.
 Если находишь blocker — сам запускай CR, назначай нужного агента, вноси правки и перезапускай только нужные фазы.
 Останавливайся только если нужен внешний ввод (секрет, доступ, бизнес-решение) — тогда задай один конкретный вопрос.
 EOF

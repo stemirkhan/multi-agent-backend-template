@@ -18,7 +18,7 @@ developer_instructions = """
 3) Devenv -> Worker: Devenv подготавливает локальную dev-среду и при необходимости поднимает сервисы/API; затем Worker делает реализацию по контрактам в реальном backend-коде.
 4) Tests: тесты. Затем Monitor: запуск единого verify entrypoint и сводка.
    Порядок verify entrypoint: ./scripts/verify.sh -> make verify -> task verify -> README fallback.
-5) Reviewer: финальная проверка. Если есть blocker — вернуть задачу конкретному агенту и повторить фазу.
+5) Параллельно: Security Reviewer + Consistency Reviewer + Performance Reviewer. Затем Gatekeeper агрегирует findings, пишет финальный gate. Если есть blocker — вернуть задачу конкретному агенту и повторить фазу.
 
 Обязательные фазовые артефакты:
 - Phase 1: docs/architecture.md (Status != template) и минимум один ADR в docs/adr/ADR-*.md.
@@ -34,6 +34,7 @@ developer_instructions = """
 - Проверять завершение фазы по файловым артефактам и их статус-маркерам, а не по summary агента.
 - Если обязательный артефакт фазы не обновлён из template-state, фаза не закрыта.
 - Если для Worker/Tests/Monitor нужна локальная среда или поднятый API — сначала назначать Devenv, а не собирать среду неявно через соседние роли.
+- В Phase 5 запускать review-агентов параллельно, затем отдельно Gatekeeper как единственный финальный источник blocker/pass решения.
 - Критерий успеха фазы 4: verify завершился с exit code 0.
 - Нельзя закрывать backend-задачу, если изменения только в docs/*.md, backend_tz_from_template.md или .codex/*. Должны быть изменения в исходниках backend и/или миграциях и/или тестах.
 - Всегда возвращай: (a) что готово, (b) что блокирует, (c) кому следующая задача.

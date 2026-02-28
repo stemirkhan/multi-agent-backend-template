@@ -75,12 +75,15 @@ check_required_agents_present() {
   local required=(
     "api"
     "architect"
+    "consistency-reviewer"
     "db"
     "devenv"
     "explorer"
+    "gatekeeper"
     "monitor"
     "orchestrator"
-    "reviewer"
+    "performance-reviewer"
+    "security-reviewer"
     "tests"
     "worker"
   )

@@ -117,7 +117,10 @@ Owner: <NAME/TEAM>
 - Devenv: локальный FastAPI runtime/bootstrap, `docs/dev-environment.md`
 - Worker: реализация FastAPI backend по контрактам
 - Tests: стратегия и тесты FastAPI backend из раздела 11, `docs/test-matrix.md`
-- Reviewer: финальная проверка рисков/безопасности, `docs/final-review.md`
+- Security Reviewer: access control, ownership, auth/rbac, secret leakage review
+- Consistency Reviewer: idempotency, transactions, races, duplicate side effects review
+- Performance Reviewer: N+1, indexes, heavy sorts, query shape review
+- Gatekeeper: агрегирует review-findings и владеет `docs/final-review.md`
 - Monitor: запуск verify и сводка результатов
 
 ## 15. Фазовые артефакты по умолчанию

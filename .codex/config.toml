@@ -33,9 +33,21 @@ config_file = "agents/worker.toml"
 description = "Tests: unit+integration+contract, фикстуры, матрица доступов."
 config_file = "agents/tests.toml"
 
-[agents.reviewer]
-description = "Reviewer: безопасность, корректность, несостыковки."
-config_file = "agents/reviewer.toml"
+[agents.security-reviewer]
+description = "Security Review: access control, ownership, auth/rbac, secret leakage."
+config_file = "agents/security-reviewer.toml"
+
+[agents.consistency-reviewer]
+description = "Consistency Review: idempotency, transactions, races, duplicate side effects."
+config_file = "agents/consistency-reviewer.toml"
+
+[agents.performance-reviewer]
+description = "Performance Review: N+1, indexes, heavy sorts, query bottlenecks."
+config_file = "agents/performance-reviewer.toml"
+
+[agents.gatekeeper]
+description = "Gatekeeper: агрегирует review-findings и ставит финальный gate."
+config_file = "agents/gatekeeper.toml"
 
 [agents.explorer]
 description = "Explorer: read-only, читает код/ТЗ, делает карту проекта."

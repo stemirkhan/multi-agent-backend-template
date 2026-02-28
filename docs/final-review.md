@@ -1,16 +1,17 @@
 # Final Review
 Status: template
-Owner: Reviewer
+Owner: Gatekeeper
 Phase: 5
 
 Этот файл обязателен для Phase 5.
-Перед закрытием фазы зафиксируй итоговый review и обнови `Status:`.
+Перед закрытием фазы зафиксируй итоговый gate после агрегации review-findings и обнови `Status:`.
 
 ## 1. Review Scope
 - Commit / diff:
 - Areas reviewed:
 
 ## 2. Findings
+- Source reviewer:
 - Severity:
 - Where:
 - Reproduction:

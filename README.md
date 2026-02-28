@@ -69,11 +69,26 @@
 - Поддерживает матрицу доступов и негативные сценарии.
 - Не переписывает прод-код без необходимости.
 
-## Reviewer (read-only)
+## Security Reviewer (read-only)
 
-- Ищет дефекты и риски: доступы, гонки, идемпотентность, индексы, утечки секретов.
-- Фиксирует итоговый gate decision в `docs/final-review.md`.
-- Не вносит изменения в код.
+- Проверяет broken access control, ownership, auth/rbac gaps и secret leakage.
+- Не вносит изменения в код и не пишет финальный gate.
+
+## Consistency Reviewer (read-only)
+
+- Проверяет idempotency, transaction boundaries, race conditions и duplicate side effects.
+- Не вносит изменения в код и не пишет финальный gate.
+
+## Performance Reviewer (read-only)
+
+- Проверяет N+1, индексы, тяжелые сортировки, query shape и bottleneck'и FastAPI + DB слоя.
+- Не вносит изменения в код и не пишет финальный gate.
+
+## Gatekeeper
+
+- Ждёт результаты review-агентов и агрегирует findings.
+- Ставит финальный gate и ведёт `docs/final-review.md`.
+- Не делает глубокий аудит вместо специализированных review-агентов.
 
 ## Explorer (read-only)
 
@@ -124,7 +139,8 @@ Phase 4 — Testing
 
 Phase 5 — Review
 
-- Reviewer проводит финальную проверку.
+- Security Reviewer, Consistency Reviewer и Performance Reviewer работают параллельно.
+- Gatekeeper агрегирует findings и ставит финальный gate.
 - При blocker-issue задача возвращается соответствующему владельцу фазы.
 - Артефакт фазы: `docs/final-review.md`.
 
@@ -136,7 +152,7 @@ Phase 5 — Review
 - `docs/dev-environment.md`: Phase 3, владелец `Devenv`.
 - `docs/schema-decisions.md`: Phase 2, владелец `DB`.
 - `docs/test-matrix.md`: Phase 4, владелец `Tests`.
-- `docs/final-review.md`: Phase 5, владелец `Reviewer`.
+- `docs/final-review.md`: Phase 5, владелец `Gatekeeper`.
 
 Правило завершения фазы:
 
@@ -151,8 +167,9 @@ Phase 5 — Review
 3. API не изменяет схему БД напрямую.
 4. Devenv владеет startup-командами, env bootstrap и локальными сервисами/API.
 5. Worker не переопределяет архитектурные решения.
-6. Reviewer, Explorer и Monitor работают в read-only режиме.
-7. Все конфликтующие решения фиксируются явно и маршрутизируются через Orchestrator.
+6. Security Reviewer, Consistency Reviewer, Performance Reviewer, Explorer и Monitor работают в read-only режиме.
+7. Gatekeeper агрегирует review-findings и публикует единственное финальное gate-решение.
+8. Все конфликтующие решения фиксируются явно и маршрутизируются через Orchestrator.
 
 ## Change Request Protocol
 
@@ -178,7 +195,7 @@ Phase 5 — Review
 - обновлены фазовые артефакты по умолчанию: `docs/architecture.md`, `docs/adr/ADR-*.md`, `openapi.yaml`, `docs/dev-environment.md`, `docs/schema-decisions.md`, `docs/test-matrix.md`, `docs/final-review.md`;
 - backend-изменения внесены в исходники и/или миграции и/или тесты (не только в docs/.codex);
 - `./scripts/verify.sh` завершается с exit code `0`;
-- нет blocker issues по итогам review.
+- у Gatekeeper нет blocker issues по итогам review.
 
 ## Запуск через run.sh
 

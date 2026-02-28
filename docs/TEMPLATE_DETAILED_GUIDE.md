@@ -483,24 +483,68 @@ max_depth = 6
 
 Он не должен вручную дублировать все проверки, если проект уже определил единый `verify`.
 
-### Reviewer
+### Security Reviewer
 
-Файл: `.codex/agents/reviewer.toml`
+Файл: `.codex/agents/security-reviewer.toml`
 
-Это финальный gatekeeper.
+Это read-only reviewer по security/access области.
 
 Он смотрит на:
 
 - broken access control;
 - ownership;
-- idempotency;
-- транзакционные риски;
-- гонки;
-- индексы;
+- auth/rbac gaps;
 - утечки секретов;
-- общие correctness/security issues.
+- security boundary mistakes.
 
-Если Reviewer находит blocker, workflow не должен считаться завершенным.
+Он не пишет финальный gate, а только возвращает findings.
+
+### Consistency Reviewer
+
+Файл: `.codex/agents/consistency-reviewer.toml`
+
+Это read-only reviewer по consistency/reliability области.
+
+Он смотрит на:
+
+- idempotency;
+- transaction boundaries;
+- гонки;
+- duplicate side effects;
+- retry/double-submit risks.
+
+Он не пишет финальный gate, а только возвращает findings.
+
+### Performance Reviewer
+
+Файл: `.codex/agents/performance-reviewer.toml`
+
+Это read-only reviewer по performance/data-access области.
+
+Он смотрит на:
+
+- N+1;
+- индексы;
+- тяжёлые сортировки;
+- query shape;
+- bottleneck'и FastAPI + DB слоя.
+
+Он не пишет финальный gate, а только возвращает findings.
+
+### Gatekeeper
+
+Файл: `.codex/agents/gatekeeper.toml`
+
+Это агрегатор review-результатов.
+
+Он:
+
+- ждет findings от review-агентов;
+- убирает дубли;
+- фиксирует blocker/pass решение;
+- пишет финальный артефакт review.
+
+Если Gatekeeper ставит blocker, workflow не должен считаться завершенным.
 
 Ожидаемый артефакт:
 
@@ -614,7 +658,7 @@ TZ_TEMPLATE.md
 - не останавливаться, пока:
   - фазовые артефакты по умолчанию не обновлены из template-state;
   - `verify` не дал `exit 0`;
-  - Reviewer не перестал выдавать blocker-findings;
+  - Gatekeeper не перестал выдавать blocker-findings;
   - acceptance checklist в ТЗ не закрыт;
   - не появились backend-изменения в коде/миграциях/тестах;
 - если найден blocker, агент должен:
@@ -722,20 +766,28 @@ Monitor:
 
 ### Phase 5 — Review
 
-Оркестратор запускает Reviewer.
+Оркестратор сначала запускает `Security Reviewer`, `Consistency Reviewer` и `Performance Reviewer` параллельно.
 
-Reviewer не должен писать код. Он должен:
+После этого запускается `Gatekeeper`.
+
+Review-агенты не должны писать код. Они должны:
 
 - найти blocker/major/minor issues;
 - указать, где проблема;
 - объяснить, как воспроизвести;
 - предложить, как исправить.
 
+Gatekeeper не должен делать глубокий аудит вместо них. Он должен:
+
+- агрегировать findings;
+- определить итоговый blocker/pass gate;
+- указать, кому возвращать задачу при blocker.
+
 Артефакт фазы:
 
 - `docs/final-review.md`
 
-Если есть blocker, Orchestrator обязан продолжить цикл, а не просто завершить задачу summary.
+Если Gatekeeper ставит blocker, Orchestrator обязан продолжить цикл, а не просто завершить задачу summary.
 
 ## 10. Почему workflow может "остановиться"
 
@@ -779,7 +831,7 @@ Reviewer не должен писать код. Он должен:
    - доступ к внешней среде;
    - неразрешенное бизнес-решение.
 
-5. Reviewer нашел blocker, но prompt не заставил довести цикл до конца  
+5. Gatekeeper поставил blocker, но prompt не заставил довести цикл до конца  
    Из-за этого Orchestrator может закончить summary вместо продолжения remediation loop.
 
 Именно поэтому текущий prompt в `run.sh` ужесточен.
@@ -837,12 +889,15 @@ Reviewer не должен писать код. Он должен:
 
 - api
 - architect
+- consistency-reviewer
 - db
 - devenv
 - explorer
+- gatekeeper
 - monitor
 - orchestrator
-- reviewer
+- performance-reviewer
+- security-reviewer
 - tests
 - worker
 
@@ -967,7 +1022,7 @@ Reviewer не должен писать код. Он должен:
 - появились ли CR/ADR при конфликтах;
 - появились ли реальные backend-code changes;
 - появились ли tests/migrations;
-- есть ли blocker findings от Reviewer.
+- есть ли blocker findings от Gatekeeper.
 
 ## 14. Что шаблон уже умеет хорошо
 
@@ -1071,7 +1126,7 @@ Reviewer не должен писать код. Он должен:
 
 ### Слой 6. Контроль качества
 
-`Devenv` + `Tests` + `Monitor` + `Reviewer` + `verify.sh`
+`Devenv` + `Tests` + `Monitor` + review-агенты + `Gatekeeper` + `verify.sh`
 
 Это слой проверки:
 
@@ -1089,8 +1144,9 @@ Orchestrator -> DB + API
 Orchestrator -> CR flow (если нужен)
 Orchestrator -> Devenv -> Worker
 Orchestrator -> Tests + Monitor
-Orchestrator -> Reviewer
-Reviewer blocker? -> назад в remediation loop
+Orchestrator -> Security Reviewer + Consistency Reviewer + Performance Reviewer
+Orchestrator -> Gatekeeper
+Gatekeeper blocker? -> назад в remediation loop
 No blocker + verify ok + checklist done + code changed -> finish
 ```
 
@@ -1140,7 +1196,7 @@ No blocker + verify ok + checklist done + code changed -> finish
 - Orchestrator запускает и координирует остальные роли;
 - Devenv готовит локальную среду и при необходимости поднимает сервисы/API;
 - Worker должен дойти до реального backend-кода;
-- Tests, Monitor и Reviewer замыкают качество и stop conditions.
+- Tests, Monitor, review-агенты и Gatekeeper замыкают качество и stop conditions.
 
 Если нужно понять систему в одной фразе:
 
