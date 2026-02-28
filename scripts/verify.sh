@@ -113,6 +113,94 @@ check_readme_verify_entrypoint() {
   return 0
 }
 
+check_project_stack_profile() {
+  if ! have_cmd python3; then
+    log "python3 not found"
+    return 1
+  fi
+
+  python3 - <<'PY'
+import pathlib
+import sys
+
+try:
+    import tomllib
+except ModuleNotFoundError:
+    print("tomllib is unavailable (need Python 3.11+)")
+    sys.exit(1)
+
+path = pathlib.Path("project-stack.toml")
+if not path.is_file():
+    print("project-stack.toml is missing")
+    sys.exit(1)
+
+data = tomllib.loads(path.read_text(encoding="utf-8"))
+required = {
+    "schema_version": int,
+    "language": str,
+    "framework": str,
+    "orm": str,
+    "migration_tool": str,
+    "test_runner": str,
+    "di_library": str,
+    "message_framework": str,
+    "message_broker": str,
+    "message_transport": str,
+    "cache": str,
+    "db": str,
+    "container_runtime": str,
+    "compose_tool": str,
+    "api_runner": str,
+    "api_entrypoint": str,
+    "verify_entrypoint": str,
+}
+
+errors = 0
+
+for key, expected_type in required.items():
+    if key not in data:
+        print(f"project-stack.toml: missing key: {key}")
+        errors += 1
+        continue
+
+    value = data[key]
+    if expected_type is int:
+        if not isinstance(value, int):
+            print(f"project-stack.toml: {key} must be an integer")
+            errors += 1
+    else:
+        if not isinstance(value, str) or not value.strip():
+            print(f"project-stack.toml: {key} must be a non-empty string")
+            errors += 1
+
+if data.get("schema_version") != 1:
+    print("project-stack.toml: schema_version must be 1")
+    errors += 1
+
+if data.get("language") != "python":
+    print("project-stack.toml: language must be python for this template")
+    errors += 1
+
+if data.get("framework") != "fastapi":
+    print("project-stack.toml: framework must be fastapi for this template")
+    errors += 1
+
+verify_entrypoint = data.get("verify_entrypoint")
+if isinstance(verify_entrypoint, str) and verify_entrypoint.strip():
+    verify_path = pathlib.Path(verify_entrypoint)
+    if verify_entrypoint.startswith("./"):
+        verify_path = pathlib.Path(verify_entrypoint[2:])
+    if not verify_path.is_file():
+        print(f"project-stack.toml: verify_entrypoint target does not exist: {verify_entrypoint}")
+        errors += 1
+
+if errors:
+    sys.exit(1)
+
+print("Validated project-stack.toml")
+PY
+}
+
 check_default_phase_artifacts_present() {
   local has_errors=0
   local markdown_artifacts=(
@@ -214,6 +302,7 @@ check_project_skills() {
 run_check "Parse agent TOML files" check_agent_toml_parse
 run_check "Required agents are present" check_required_agents_present
 run_check "README references verify entrypoint" check_readme_verify_entrypoint
+run_check "Project stack profile is present and valid" check_project_stack_profile
 run_check "Default phase artifacts are present" check_default_phase_artifacts_present
 run_check "Project skills are present and valid" check_project_skills
 

@@ -3,11 +3,20 @@
 Дата: <YYYY-MM-DD>
 Owner: <NAME/TEAM>
 
-## 0. Stack Assumptions
-- Web/API framework: `FastAPI`
-- Schemas: `Pydantic`
+## 0. Stack Profile
+Machine-readable source of truth: `project-stack.toml`
+
+Этот раздел должен оставаться синхронизированным с `project-stack.toml`.
+
+- Language/framework: `python` + `fastapi`
+- Schemas/validation: `Pydantic`
 - Persistence/migrations: `SQLAlchemy` + `Alembic`
+- DI: `dishka`
+- Messaging: `faststream` + `redis` / `redis-streams`
+- Cache/DB: `redis` + `postgres`
 - Dev containers: `podman` + `podman-compose`
+- API runtime: `uvicorn` -> `app.main:app`
+- Verify entrypoint: `./scripts/verify.sh`
 
 ## 1. Цель и границы
 ### 1.1 Цель MVP
@@ -107,6 +116,7 @@ Owner: <NAME/TEAM>
 - [ ] RBAC/ownership покрыт тестами
 - [ ] Idempotency подтверждена тестами
 - [ ] Локальная dev-среда и API стартуют воспроизводимо
+- [ ] `project-stack.toml` соответствует реальному стеку и entrypoint'ам проекта
 - [ ] Фазовые артефакты обновлены: `docs/architecture.md`, `docs/adr/ADR-*.md`, `openapi.yaml`, `docs/dev-environment.md`, `docs/schema-decisions.md`, `docs/test-matrix.md`, `docs/final-review.md`
 - [ ] `./scripts/verify.sh` завершился с exit code 0
 

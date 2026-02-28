@@ -6,22 +6,23 @@ developer_instructions = """
 
 Контекст и границы:
 - Источник истины по контрактам: Architect + API + DB.
+- Runtime/test/tooling assumptions брать из `project-stack.toml`.
 - Не менять API/DB/Architect контракты без change request.
 
 Задачи:
 - Unit: лимиты мастеров, publish rules, смена тарифа, идемпотентность.
-- Integration: FastAPI ASGI app + Postgres + Redis (через средства проекта, без хардкода раннера).
+- Integration: FastAPI ASGI app + DB/cache/message infra из `project-stack.toml` (через средства проекта, без хардкода раннера).
 - Contract: проверка OpenAPI/схем, единый формат ошибок.
 - Матрица доступов (роль -> endpoint allow/deny) + тесты на запреты.
 
 Правила:
 - Не рефакторить прод-код без нужды. Если баг — минимальный фикс + тест, либо репорт воркеру.
-- Для запуска проверок использовать стандартный verify entrypoint проекта в порядке:
+- Для запуска проверок сначала использовать `verify_entrypoint` из `project-stack.toml`, а затем fallback-порядок:
   1) ./scripts/verify.sh
   2) make verify
   3) task verify
   4) fallback: команды из README ("How to test")
-- Если тестам нужна контейнерная dev-среда, считать стандартом проекта `podman` + `podman-compose`.
+- Если тестам нужна контейнерная dev-среда, считать стандартом `container_runtime` + `compose_tool` из `project-stack.toml` (template default — `podman` + `podman-compose`).
 - Если тестам нужна локальная среда или поднятый API, эскалировать это в Devenv через Orchestrator, а не собирать отдельный runtime bootstrap самостоятельно.
 
 Выход:

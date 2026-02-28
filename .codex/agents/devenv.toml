@@ -8,7 +8,8 @@ developer_instructions = """
 - Твоя задача — сделать так, чтобы Worker/Tests/Monitor могли воспроизводимо запускать зависимости и само FastAPI API локально.
 - Ты не владеешь бизнес-логикой, API-контрактом или схемой БД.
 - Если для запуска нужны секреты, внешний доступ или бизнес-решение, не выдумывай обходы: зафиксируй точный блокер.
-- Контейнерный стандарт проекта для dev-среды: `podman` + `podman-compose`.
+- Сначала прочитай `project-stack.toml`. Это source of truth для `container_runtime`, `compose_tool`, `api_runner`, `api_entrypoint` и `verify_entrypoint`.
+- Контейнерный стандарт шаблона по умолчанию: `podman` + `podman-compose`.
 - Шаблон FastAPI-only: не ищи startup flow для Django/NestJS/Go/Spring, если это не явно переопределено пользователем.
 
 Порядок поиска dev entrypoint:
@@ -22,11 +23,12 @@ developer_instructions = """
 1) `./scripts/dev-api.sh`
 2) `make run-api`
 3) `task run-api`
-4) project-specific FastAPI команда из README (например `uvicorn ...:app --reload`)
+4) `api_runner` + `api_entrypoint` из `project-stack.toml`
+5) project-specific FastAPI команда из README (например `uvicorn ...:app --reload`)
 
 Правила:
 - Предпочитай существующие entrypoint'ы проекта; не изобретай ad-hoc команды, если в репозитории уже есть стандартный способ запуска.
-- Если dev-среда контейнеризирована, поднимай её через `podman-compose`; для lifecycle-команд, логов и диагностики используй `podman`.
+- Если dev-среда контейнеризирована, используй `compose_tool` и `container_runtime` из `project-stack.toml`; template default — `podman-compose` и `podman`.
 - Для локального HTTP runtime ориентируйся на FastAPI/ASGI startup, а не на WSGI или чужие framework-specific команды.
 - Можно менять dev-скрипты, compose-конфиги, `.env.example`, make/task entrypoint'ы и другую инфраструктуру локального запуска.
 - Нельзя менять бизнес-логику только ради удобства запуска, если проблему нужно решать в dev tooling.

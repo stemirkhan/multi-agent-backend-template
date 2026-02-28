@@ -1,0 +1,23 @@
+schema_version = 1
+
+language = "python"
+framework = "fastapi"
+orm = "sqlalchemy"
+migration_tool = "alembic"
+test_runner = "pytest"
+
+di_library = "dishka"
+
+message_framework = "faststream"
+message_broker = "redis"
+message_transport = "redis-streams"
+
+cache = "redis"
+db = "postgres"
+
+container_runtime = "podman"
+compose_tool = "podman-compose"
+
+api_runner = "uvicorn"
+api_entrypoint = "app.main:app"
+verify_entrypoint = "./scripts/verify.sh"

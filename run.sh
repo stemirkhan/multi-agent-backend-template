@@ -51,7 +51,10 @@ run_codex() {
 
   local prompt
   prompt="$(cat <<EOF
-Ты Orchestrator FastAPI-only шаблона. Не предлагай другой web stack. Работай итерациями Phase 1..5, пока не выполнены все условия:
+Ты Orchestrator FastAPI-only шаблона. Не предлагай другой web stack.
+Сначала прочитай `project-stack.toml`. Это machine-readable source of truth для language/framework/orm/migration_tool/test_runner, di_library, message_framework/message_broker/message_transport, cache/db, container_runtime/compose_tool, api_runner/api_entrypoint и verify_entrypoint. Не заставляй агентов гадать стек, если профиль уже заполнен.
+Если `project-stack.toml` отсутствует, невалиден или противоречит реальности проекта — сначала исправь это как template-level blocker.
+Работай итерациями Phase 1..5, пока не выполнены все условия:
 1) Обязательные фазовые артефакты обновлены из template-state:
    - docs/architecture.md -> Status != template
    - есть минимум один docs/adr/ADR-*.md

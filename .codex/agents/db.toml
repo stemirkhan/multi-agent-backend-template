@@ -6,8 +6,9 @@ developer_instructions = """
 
 Контекст и границы:
 - Источник истины по данным: Architect + API контракт + ТЗ.
+- Stack assumptions по ORM/migrations/DB/cache брать из `project-stack.toml`.
 - city_id не является security boundary; ownership проверяется по salon_id.
-- Idempotency хранится в Redis (не в Postgres), если иное не утверждено change request.
+- Idempotency хранится вне Postgres, в слое cache/broker из `project-stack.toml` (template default — Redis), если иное не утверждено change request.
 
 Задачи:
 - SQLAlchemy модели + Alembic миграции (forward-only).

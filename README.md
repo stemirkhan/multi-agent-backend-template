@@ -4,6 +4,7 @@
 Шаблон зафиксирован под FastAPI stack и не рассчитан на другие web-framework'и без отдельной адаптации.
 
 Подробный разбор того, как работает шаблон "от и до": `docs/TEMPLATE_DETAILED_GUIDE.md`
+Machine-readable stack profile проекта: `project-stack.toml`
 
 ## Цель
 
@@ -16,10 +17,21 @@
 
 ## Stack Assumptions
 
-- Web/API framework: `FastAPI`
-- Schemas: `Pydantic`
+Source of truth для стека и runtime tooling: `project-stack.toml`
+
+Профиль по умолчанию:
+
+- Language/framework: `python` + `fastapi`
+- Schemas/validation: `Pydantic`
 - Persistence/migrations: `SQLAlchemy` + `Alembic`
+- DI: `dishka`
+- Messaging: `faststream` + `redis` / `redis-streams`
+- Cache/DB: `redis` + `postgres`
 - Dev containers: `podman` + `podman-compose`
+- API runtime: `uvicorn` -> `app.main:app`
+- Verify entrypoint: `./scripts/verify.sh`
+
+`project-stack.toml` не является lockfile версий. Это machine-readable профиль технологического выбора и entrypoint'ов, который агенты должны читать до любых предположений о стеке.
 
 ## Роли агентов
 
@@ -51,6 +63,7 @@
 ## Devenv
 
 - Владеет локальной dev-средой и reproducible startup flow.
+- Читает `project-stack.toml` как source of truth для container runtime, compose tool и API entrypoint'а.
 - При необходимости поднимает зависимости и само API.
 - Для контейнерной dev-среды использует `podman` и `podman-compose`.
 - Ведёт `docs/dev-environment.md` как канонический runtime/bootstrap артефакт.
@@ -58,12 +71,14 @@
 ## Worker
 
 - Реализует FastAPI runtime: бизнес-логику, сервисы, репозитории и интеграции.
+- Читает `project-stack.toml` для runtime/DI/messaging assumptions перед реализацией.
 - Следует контрактам Architect/DB/API.
 - Не меняет архитектурные и контрактные решения без согласования.
 
 ## Tests
 
 - Пишет unit/integration/contract/security тесты.
+- Читает `project-stack.toml` для test runner, DB/cache/message infra и verify entrypoint'а.
 - Для integration/contract сценариев исходит из FastAPI/ASGI runtime.
 - Ведёт `docs/test-matrix.md` как канонический список test coverage.
 - Поддерживает матрицу доступов и негативные сценарии.
@@ -98,11 +113,14 @@
 ## Monitor (read-only)
 
 - Запускает единый verify entrypoint и собирает сводку.
+- Читает `project-stack.toml` как source of truth для verify entrypoint и container runtime.
 - Не меняет код.
 
 ## Порядок verify entrypoint
 
-Monitor/Tests запускают проверки в следующем порядке:
+Machine-readable source of truth для verify: `project-stack.toml` (`verify_entrypoint`).
+
+Если entrypoint из stack profile отсутствует или временно невалиден, Monitor/Tests используют fallback порядок:
 
 1. `./scripts/verify.sh`
 2. `make verify`
@@ -192,6 +210,7 @@ Phase 5 — Review
 - идемпотентность критичных mutation endpoint'ов подтверждена тестами;
 - подключены логи/метрики и есть минимальные health-проверки;
 - локальная dev-среда и API стартуют воспроизводимо;
+- `project-stack.toml` соответствует реальному стеку и entrypoint'ам проекта;
 - обновлены фазовые артефакты по умолчанию: `docs/architecture.md`, `docs/adr/ADR-*.md`, `openapi.yaml`, `docs/dev-environment.md`, `docs/schema-decisions.md`, `docs/test-matrix.md`, `docs/final-review.md`;
 - backend-изменения внесены в исходники и/или миграции и/или тесты (не только в docs/.codex);
 - `./scripts/verify.sh` завершается с exit code `0`;

@@ -6,6 +6,7 @@ developer_instructions = """
 
 Контекст и границы:
 - Источник истины по контрактам: Architect + DB + ТЗ.
+- Stack/runtime assumptions брать из `project-stack.toml`, а не выводить из общих предположений.
 - API v1 должен быть обратно совместимым; breaking changes только через change request.
 - API определяет публичный контракт, но не владеет миграциями/схемой БД.
 - Шаблон FastAPI-only: контракт должен быть реализуем через `FastAPI` + `Pydantic`, а не через альтернативные web-framework abstractions.
@@ -20,7 +21,7 @@ Idempotency (обязательно):
 - Заголовок Idempotency-Key для: create salon, change tariff, analytics/events.
 - TTL: 24h.
 - Scope: (user_id, endpoint, idempotency_key).
-- Хранилище: Redis (SETNX) + сохранение результата ответа.
+- Хранилище: cache/idempotency storage, совместимое с `project-stack.toml`; template default — Redis (SETNX) + сохранение результата ответа.
 - Повторный запрос с тем же ключом должен возвращать семантически тот же результат (status/body), а не создавать дубликаты.
 
 Правила:

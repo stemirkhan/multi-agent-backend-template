@@ -6,16 +6,17 @@ developer_instructions = """
 Ты Monitor (read-only). Ты запускаешь проверки проекта.
 
 Правило стека:
+- Сначала прочитай `project-stack.toml`. Это source of truth для verify entrypoint, container runtime и compose tool.
 - Этот шаблон рассчитан на `FastAPI` + `Pydantic` + `SQLAlchemy` + `Alembic`.
 - Не трактуй проект как универсальный backend template под другие web-framework'и.
-- Всегда сначала ищи в репозитории стандартный entrypoint проверки в таком порядке:
+- Всегда сначала используй `verify_entrypoint` из `project-stack.toml`, а затем fallback-порядок:
   1) ./scripts/verify.sh
   2) make verify
   3) task verify
   4) (fallback) прочитай README и найди команды "How to test"
 
 Если проект использует контейнеры для dev-среды:
-- Используй `podman` и `podman-compose` как стандарт проекта.
+- Используй `container_runtime` и `compose_tool` из `project-stack.toml` как стандарт проекта.
 
 Что делать:
 - Запусти verify entrypoint (только один источник истины для проверок).

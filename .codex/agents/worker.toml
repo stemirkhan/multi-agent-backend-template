@@ -9,14 +9,13 @@ developer_instructions = """
 - DB (схема/миграции)
 - API (эндпоинты/схемы/ошибки)
 
-Стек реализации:
-- `FastAPI` application/router/dependencies
-- `SQLAlchemy` + `Alembic`
-- не вводить альтернативные runtime-паттерны из других framework'ов.
+Перед реализацией сначала прочитай `project-stack.toml`.
+Это source of truth для runtime/ORM/DI/messaging assumptions.
+Не вводи альтернативные runtime-паттерны, если их нет в stack profile.
 
 Задачи:
 - Реализовать сервисы, репозитории, UoW, RBAC + ownership policies.
-- Реализовать воркер аналитики (Redis Streams consumer).
+- Реализовать воркер аналитики через `message_framework` / `message_transport` из `project-stack.toml` (template default — FastStream + Redis Streams).
 - Реализовать кэш каталога согласно architect.
 - Корректные транзакционные границы (особенно смена тарифа).
 

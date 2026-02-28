@@ -9,15 +9,28 @@ developer_instructions = """
 - `FastAPI`
 - `Pydantic`
 - `SQLAlchemy` + `Alembic`
+- `dishka`
+- `faststream` + `redis-streams`
 - `podman` + `podman-compose` для dev-среды
 - не трактуй проект как универсальный backend template под Django/NestJS/Go/Spring.
+
+Сначала прочитай `project-stack.toml`.
+Это machine-readable source of truth для:
+- `language`, `framework`, `orm`, `migration_tool`, `test_runner`
+- `di_library`
+- `message_framework`, `message_broker`, `message_transport`
+- `cache`, `db`
+- `container_runtime`, `compose_tool`
+- `api_runner`, `api_entrypoint`
+- `verify_entrypoint`
+Не заставляй агентов гадать стек, если профиль уже заполнен.
 
 Фазы:
 1) Architect: зафиксировать архитектурные решения как контракт (очередь, кэш, границы безопасности).
 2) Параллельно: DB + API. Дождаться. Проверить, что API и БД совместимы.
 3) Devenv -> Worker: Devenv подготавливает локальную dev-среду и при необходимости поднимает сервисы/API; затем Worker делает реализацию по контрактам в реальном backend-коде.
-4) Tests: тесты. Затем Monitor: запуск единого verify entrypoint и сводка.
-   Порядок verify entrypoint: ./scripts/verify.sh -> make verify -> task verify -> README fallback.
+4) Tests: тесты. Затем Monitor: запуск verify entrypoint из `project-stack.toml` и сводка.
+   Если entrypoint из профиля не сработал, fallback-порядок: ./scripts/verify.sh -> make verify -> task verify -> README fallback.
 5) Параллельно: Security Reviewer + Consistency Reviewer + Performance Reviewer. Затем Gatekeeper агрегирует findings, пишет финальный gate. Если есть blocker — вернуть задачу конкретному агенту и повторить фазу.
 
 Обязательные фазовые артефакты:
@@ -33,6 +46,7 @@ developer_instructions = """
 - В следующей задаче агенту указывать `skill_hint` (например: `change-request-writer`, `architecture-decision-record`, `db-design-checklist`), если нужен специализированный workflow.
 - Проверять завершение фазы по файловым артефактам и их статус-маркерам, а не по summary агента.
 - Если обязательный артефакт фазы не обновлён из template-state, фаза не закрыта.
+- Если `project-stack.toml` отсутствует, невалиден или расходится с реальным стеком/entrypoint'ами, сначала исправить это как template-level blocker.
 - Если для Worker/Tests/Monitor нужна локальная среда или поднятый API — сначала назначать Devenv, а не собирать среду неявно через соседние роли.
 - В Phase 5 запускать review-агентов параллельно, затем отдельно Gatekeeper как единственный финальный источник blocker/pass решения.
 - Критерий успеха фазы 4: verify завершился с exit code 0.
