@@ -68,6 +68,7 @@ run_codex() {
 4) Acceptance checklist в ${tz_file} закрыт.
 5) Для backend-части есть изменения в runtime-коде и/или миграциях и/или тестах (не только docs/.codex).
 Проверяй фазовые артефакты по файлам и статус-маркерам, а не по summary агентов.
+Если backend skeleton отсутствует или явно не соответствует stack profile, сначала назначай Worker со skill `backend-bootstrap`, а не начинай feature implementation в пустом репозитории.
 Если для реализации/тестов/verify нужен поднятый стек или API — сначала назначай Devenv.
 В Phase 5 сначала запускай security-reviewer, consistency-reviewer и performance-reviewer параллельно, затем Gatekeeper.
 Если находишь blocker — сам запускай CR, назначай нужного агента, вноси правки и перезапускай только нужные фазы.

@@ -113,6 +113,49 @@ check_readme_verify_entrypoint() {
   return 0
 }
 
+check_local_security_defaults() {
+  local has_errors=0
+
+  if [[ ! -f ".env.example" ]]; then
+    log "Missing .env.example"
+    has_errors=1
+  else
+    local required_vars=(
+      "APP_ENV="
+      "APP_HOST="
+      "APP_PORT="
+      "LOG_LEVEL="
+      "POSTGRES_DSN="
+      "REDIS_DSN="
+      "JWT_SECRET="
+    )
+
+    for var in "${required_vars[@]}"; do
+      if ! grep -q "^${var}" ".env.example"; then
+        log ".env.example is missing ${var}"
+        has_errors=1
+      fi
+    done
+  fi
+
+  if [[ ! -f ".gitignore" ]]; then
+    log "Missing .gitignore"
+    has_errors=1
+  else
+    if ! grep -q "^\\.env$" ".gitignore"; then
+      log ".gitignore does not ignore .env"
+      has_errors=1
+    fi
+
+    if ! grep -q "^!\\.env\\.example$" ".gitignore"; then
+      log ".gitignore does not allow tracking .env.example"
+      has_errors=1
+    fi
+  fi
+
+  [[ "$has_errors" -eq 0 ]]
+}
+
 check_project_stack_profile() {
   if ! have_cmd python3; then
     log "python3 not found"
@@ -258,6 +301,7 @@ check_project_skills() {
     "change-request-writer"
     "architecture-decision-record"
     "db-design-checklist"
+    "backend-bootstrap"
   )
   local has_errors=0
 
@@ -276,6 +320,24 @@ check_project_skills() {
       log "Missing ${ui_yaml}"
       has_errors=1
       continue
+    fi
+
+    if [[ "$skill" == "backend-bootstrap" ]]; then
+      local required_refs=(
+        "${skill_dir}/references/project-layout.md"
+        "${skill_dir}/references/exception-layer.md"
+        "${skill_dir}/references/bootstrap-checklist.md"
+        "${skill_dir}/references/settings-and-secrets.md"
+        "${skill_dir}/references/service-repository-boundaries.md"
+        "${skill_dir}/references/code-quality.md"
+      )
+
+      for ref in "${required_refs[@]}"; do
+        if [[ ! -f "$ref" ]]; then
+          log "Missing ${ref}"
+          has_errors=1
+        fi
+      done
     fi
 
     if grep -q "\\[TODO:" "$skill_md"; then
@@ -301,8 +363,9 @@ check_project_skills() {
 
 run_check "Parse agent TOML files" check_agent_toml_parse
 run_check "Required agents are present" check_required_agents_present
-run_check "README references verify entrypoint" check_readme_verify_entrypoint
+run_check "Local security defaults are present" check_local_security_defaults
 run_check "Project stack profile is present and valid" check_project_stack_profile
+run_check "README references verify entrypoint" check_readme_verify_entrypoint
 run_check "Default phase artifacts are present" check_default_phase_artifacts_present
 run_check "Project skills are present and valid" check_project_skills
 

@@ -44,6 +44,8 @@ Machine-readable stack profile проекта: `project-stack.toml`
 ./run.sh codex backend_tz_from_template.md
 ```
 
+Если в новом репозитории ещё нет runnable backend skeleton, Orchestrator должен направить Worker на skill `backend-bootstrap` до начала feature-level реализации.
+
 ## Что должен заполнить пользователь
 
 До первого прогона пользователь должен явно заполнить хотя бы эти входы:
@@ -55,6 +57,7 @@ Machine-readable stack profile проекта: `project-stack.toml`
 
 - `README.md` разделы с project-specific командами запуска и проверки, если они отличаются от шаблонных.
 - `./scripts/dev-up.sh` и `./scripts/dev-api.sh` либо `make`/`task` entrypoint'ы, если локальный startup flow уже известен.
+- `.env.example`, если проекту уже нужны локальные настройки и секретные переменные.
 
 Не нужно вручную заполнять фазовые артефакты `docs/*.md` и `openapi.yaml` как готовый результат до прогона.
 Они уже существуют как template artifacts и должны быть обновлены агентами по ходу workflow.
@@ -76,6 +79,21 @@ Source of truth для стека и runtime tooling: `project-stack.toml`
 - Verify entrypoint: `./scripts/verify.sh`
 
 `project-stack.toml` не является lockfile версий. Это machine-readable профиль технологического выбора и entrypoint'ов, который агенты должны читать до любых предположений о стеке.
+
+## Встроенные Skills
+
+- `architecture-decision-record`: фиксирует архитектурные решения и ADR.
+- `change-request-writer`: оформляет контрактные change request'ы между ролями.
+- `db-design-checklist`: прогоняет схему и миграции через checklist по ограничениям, индексам и safety.
+- `backend-bootstrap`: создает initial FastAPI backend skeleton, включая runtime structure, dev entrypoint'ы, тестовый foundation и слой кастомных исключений.
+
+## Hard Defaults Шаблона
+
+- Единый слой ошибок: app-level exceptions с `code`, `message`, `details`; API не раскрывает secrets, PII и внутренние технические детали.
+- Локальная конфигурация через env: `.env` не коммитится, `.env.example` хранится в репозитории, настройки читаются через `pydantic-settings`.
+- Граница `Service` / `Repository`: сервисы владеют бизнес-логикой и транзакцией/UoW, репозитории не делают `commit` / `rollback` и не содержат бизнес-логики.
+- Именование: классы сервисов оканчиваются на `Service`, репозиториев — на `Repository`.
+- Базовые code-quality expectations: formatter, linter и type hints для публичных интерфейсов.
 
 ## Роли агентов
 
@@ -217,6 +235,7 @@ Phase 5 — Review
 - `docs/dev-environment.md` с `Status != template`
 - `docs/test-matrix.md` с `Status != template`
 - `docs/final-review.md` с `Status != template`
+- `.env.example` и базовый settings/bootstrap layer, если до прогона foundation отсутствовал
 
 Кроме документов, должны появиться реальные backend-изменения хотя бы в одной из зон:
 
@@ -274,6 +293,9 @@ Phase 5 — Review
 - идемпотентность критичных mutation endpoint'ов подтверждена тестами;
 - подключены логи/метрики и есть минимальные health-проверки;
 - локальная dev-среда и API стартуют воспроизводимо;
+- есть `.env.example`, а секреты не захардкожены в коде и не закоммичены в `.env`;
+- слой ошибок использует единый app-level contract с безопасными публичными сообщениями;
+- граница `Service` / `Repository` соблюдена, транзакции управляются сервисом/UoW;
 - `project-stack.toml` соответствует реальному стеку и entrypoint'ам проекта;
 - обновлены фазовые артефакты по умолчанию: `docs/architecture.md`, `docs/adr/ADR-*.md`, `openapi.yaml`, `docs/dev-environment.md`, `docs/schema-decisions.md`, `docs/test-matrix.md`, `docs/final-review.md`;
 - backend-изменения внесены в исходники и/или миграции и/или тесты (не только в docs/.codex);
@@ -287,6 +309,9 @@ Phase 5 — Review
 - изменились только `docs/`, `.codex/` или ТЗ, но нет runtime-кода, миграций или тестов;
 - фазовые артефакты остались в template-state (`Status: template` или `x-template-status: template`);
 - `project-stack.toml` не соответствует реальному проекту, а агенты работают по ложным assumptions;
+- в репозитории нет `.env.example`, а секреты и локальные настройки размазаны по коду или коммитнутому `.env`;
+- сервисы и репозитории смешали обязанности: бизнес-логика ушла в repo или транзакции делают `commit` / `rollback` вне сервиса/UoW;
+- API возвращает сырые library exceptions, `HTTPException` из внутренних слоев или сообщения с PII/секретами;
 - Orchestrator остановился на summary, хотя `verify` не зелёный или у Gatekeeper есть blocker findings;
 - API и DB разошлись, но Change Request не был оформлен явно;
 - для тестов или verify нужен поднятый стек, но Devenv не был задействован;

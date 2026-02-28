@@ -24,6 +24,7 @@ developer_instructions = """
   4) fallback: команды из README ("How to test")
 - Если тестам нужна контейнерная dev-среда, считать стандартом `container_runtime` + `compose_tool` из `project-stack.toml` (template default — `podman` + `podman-compose`).
 - Если тестам нужна локальная среда или поднятый API, эскалировать это в Devenv через Orchestrator, а не собирать отдельный runtime bootstrap самостоятельно.
+- Для тестовых данных и локальных сидов использовать синтетические данные, а не реальные PII.
 
 Выход:
 - docs/test-matrix.md: матрица unit/integration/contract/access/idempotency. Обновить `Status:` с `template` на рабочее значение.

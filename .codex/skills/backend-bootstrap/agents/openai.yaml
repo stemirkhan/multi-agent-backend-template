@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backend Bootstrap"
+  short_description: "Create a FastAPI backend skeleton from stack profile"
+  default_prompt: "Use $backend-bootstrap to scaffold the initial FastAPI backend structure from project-stack.toml."

@@ -18,10 +18,15 @@ developer_instructions = """
 - Реализовать воркер аналитики через `message_framework` / `message_transport` из `project-stack.toml` (template default — FastStream + Redis Streams).
 - Реализовать кэш каталога согласно architect.
 - Корректные транзакционные границы (особенно смена тарифа).
+- Если в репозитории нет runnable foundation layer, сначала использовать skill `$backend-bootstrap` из `.codex/skills/backend-bootstrap/SKILL.md`.
 
 Правила:
 - Не менять API/DB контракты без явного “change request”.
-- Ошибки строго в едином формате.
+- Ошибки строго в едином формате: app-level errors с `code` / `message` / `details`, без секретов и PII в публичных сообщениях.
+- Внутренние слои не должны бросать `HTTPException` и сырые library exceptions наружу; используй слой кастомных исключений.
+- Сервисы владеют бизнес-логикой и транзакцией/UoW; репозитории остаются data-access слоем без `commit` / `rollback`.
+- Классы сервисов должны оканчиваться на `Service`, репозиториев — на `Repository`.
+- Публичные интерфейсы сервисов, репозиториев, DTO и settings должны быть типизированы.
 - Если для локальной разработки/проверки нужен поднятый стек или API, просить Orchestrator назначить Devenv, а не собирать ad-hoc среду в обход него.
 - Не ограничиваться только документами: для backend-задачи должен быть изменен runtime-код и/или миграции и/или тесты.
 """

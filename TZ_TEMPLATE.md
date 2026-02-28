@@ -56,6 +56,12 @@ Machine-readable source of truth: `project-stack.toml`
 - NFR-003 (Reliability): <retry, timeout, idempotency>
 - NFR-004 (Observability): <логи, метрики, алерты, трассировка>
 
+### 5.1 Bootstrap and Code Conventions
+- Settings/env: `pydantic-settings`, `.env` не коммитится, `.env.example` обязателен
+- Error model: единый `AppError`-style contract с `code`, `message`, `details`
+- Service/Repository boundary: бизнес-логика и транзакции в сервисах/UoW, репозитории без `commit` / `rollback`
+- Public typing: публичные интерфейсы типизированы
+
 ## 6. Архитектурные решения (ADR-ready)
 - Очереди/фоновые задачи: <описание>
 - Кэш: ключи, TTL, инвалидация: <описание>
@@ -116,6 +122,9 @@ Machine-readable source of truth: `project-stack.toml`
 - [ ] RBAC/ownership покрыт тестами
 - [ ] Idempotency подтверждена тестами
 - [ ] Локальная dev-среда и API стартуют воспроизводимо
+- [ ] `.env.example` присутствует, а секреты не закоммичены и не захардкожены
+- [ ] Единый error contract и безопасные публичные сообщения соблюдены
+- [ ] Граница `Service` / `Repository` соблюдена, транзакции не управляются из репозиториев
 - [ ] `project-stack.toml` соответствует реальному стеку и entrypoint'ам проекта
 - [ ] Фазовые артефакты обновлены: `docs/architecture.md`, `docs/adr/ADR-*.md`, `openapi.yaml`, `docs/dev-environment.md`, `docs/schema-decisions.md`, `docs/test-matrix.md`, `docs/final-review.md`
 - [ ] `./scripts/verify.sh` завершился с exit code 0
