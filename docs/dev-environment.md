@@ -6,6 +6,11 @@ Phase: 3
 Этот файл обязателен для Phase 3.
 Перед закрытием фазы зафиксируй воспроизводимый локальный startup flow и обнови `Status:`.
 
+## 0. Dependency Bootstrap
+- Command:
+- Local venv / environment path:
+- Package manager / manifest:
+
 ## 1. Required Services
 - Container runtime: `podman`
 - Compose runner: `podman-compose`

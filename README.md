@@ -21,8 +21,10 @@ Machine-readable stack profile проекта: `project-stack.toml`
 2. Проверить и при необходимости обновить `project-stack.toml` под реальный стек проекта.
 3. Заполнить `TZ_TEMPLATE.md` или создать отдельный `backend_tz_from_template.md` на его основе.
 4. Добавить или уточнить reproducible entrypoint'ы проекта, если они уже известны:
+   - `./scripts/dev-bootstrap.sh`
    - `./scripts/dev-up.sh`
    - `./scripts/dev-api.sh`
+   - `make dev-bootstrap`
    - `make dev-up`
    - `make run-api`
    - `make verify`
@@ -56,7 +58,7 @@ Machine-readable stack profile проекта: `project-stack.toml`
 Желательно подготовить заранее:
 
 - `README.md` разделы с project-specific командами запуска и проверки, если они отличаются от шаблонных.
-- `./scripts/dev-up.sh` и `./scripts/dev-api.sh` либо `make`/`task` entrypoint'ы, если локальный startup flow уже известен.
+- `./scripts/dev-bootstrap.sh`, `./scripts/dev-up.sh` и `./scripts/dev-api.sh` либо `make`/`task` entrypoint'ы, если локальный bootstrap/startup flow уже известен.
 - `.env.example`, если проекту уже нужны локальные настройки и секретные переменные.
 
 Не нужно вручную заполнять фазовые артефакты `docs/*.md` и `openapi.yaml` как готовый результат до прогона.
@@ -333,6 +335,8 @@ Multi-agent запуск Codex:
 ```bash
 ./run.sh codex
 ./run.sh codex backend_tz_from_template.md
+./run.sh codex-auto backend_tz_from_template.md
+./run.sh codex-danger backend_tz_from_template.md
 ```
 
 Справка по командам:
@@ -344,7 +348,13 @@ Multi-agent запуск Codex:
 Требования для `./run.sh codex`:
 
 - команда `codex` доступна в `PATH`;
-- в Codex включен feature flag `multi_agent`.
+- если используемая версия `codex` поддерживает feature flag `multi_agent`, `run.sh` включит его автоматически.
+
+Режимы запуска:
+
+- `./run.sh codex ...`: интерактивный режим с обычными approvals.
+- `./run.sh codex-auto ...`: меньше ручных подтверждений, но sandbox может всё ещё остановить install/container/network операции.
+- `./run.sh codex-danger ...`: без approvals и без sandbox. Это режим для изолированной dev-машины/VM, когда не хочется останавливать workflow на `.venv` bootstrap, `pip install`, контейнерах и похожих операциях.
 
 ## How to test
 

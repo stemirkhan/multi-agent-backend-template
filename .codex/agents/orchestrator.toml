@@ -44,11 +44,13 @@ developer_instructions = """
 - Контракты API/DB/Architect менять только через явный “change request”.
 - При конфликте контрактов требовать CR через skill `$change-request-writer` до перезапуска фазы.
 - Если в репозитории отсутствует coherent backend skeleton, сначала назначать Worker со skill `$backend-bootstrap`, а затем уже feature implementation.
+- Если в проекте отсутствует reproducible bootstrap entrypoint для зависимостей (`./scripts/dev-bootstrap.sh`, `make dev-bootstrap`, `task dev-bootstrap` или эквивалент), сначала назначать Devenv на bootstrap среды, а затем уже Worker/Tests/Monitor.
 - В следующей задаче агенту указывать `skill_hint` (например: `backend-bootstrap`, `change-request-writer`, `architecture-decision-record`, `db-design-checklist`), если нужен специализированный workflow.
 - Проверять завершение фазы по файловым артефактам и их статус-маркерам, а не по summary агента.
 - Если обязательный артефакт фазы не обновлён из template-state, фаза не закрыта.
 - Если `project-stack.toml` отсутствует, невалиден или расходится с реальным стеком/entrypoint'ами, сначала исправить это как template-level blocker.
 - Если для Worker/Tests/Monitor нужна локальная среда или поднятый API — сначала назначать Devenv, а не собирать среду неявно через соседние роли.
+- Не допускать ad-hoc остановки workflow на ручных install-вопросах, если проблема должна решаться через единый bootstrap entrypoint и ответственность Devenv.
 - В Phase 5 запускать review-агентов параллельно, затем отдельно Gatekeeper как единственный финальный источник blocker/pass решения.
 - Критерий успеха фазы 4: verify завершился с exit code 0.
 - Нельзя закрывать backend-задачу, если изменения только в docs/*.md, backend_tz_from_template.md или .codex/*. Должны быть изменения в исходниках backend и/или миграциях и/или тестах.

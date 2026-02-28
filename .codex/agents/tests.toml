@@ -24,6 +24,7 @@ developer_instructions = """
   4) fallback: команды из README ("How to test")
 - Если тестам нужна контейнерная dev-среда, считать стандартом `container_runtime` + `compose_tool` из `project-stack.toml` (template default — `podman` + `podman-compose`).
 - Если тестам нужна локальная среда или поднятый API, эскалировать это в Devenv через Orchestrator, а не собирать отдельный runtime bootstrap самостоятельно.
+- Если для тестов не хватает зависимостей или bootstrap-среды, возвращать один точный blocker в Devenv, а не изобретать отдельный `pip install ...` путь.
 - Для тестовых данных и локальных сидов использовать синтетические данные, а не реальные PII.
 
 Выход:

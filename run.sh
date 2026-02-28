@@ -10,13 +10,27 @@ Usage: ./run.sh [command]
 
 Commands:
   verify             Run project verification checks (default)
-  codex [tz_file]    Run Codex multi-agent workflow (default tz_file: TZ_TEMPLATE.md)
+  codex [tz_file]    Run Codex with interactive approvals (default tz_file: TZ_TEMPLATE.md)
+  codex-auto [tz_file]
+                     Run Codex in low-friction sandboxed mode (--full-auto)
+  codex-danger [tz_file]
+                     Run Codex with no approvals and no sandbox
   help               Show this help message
 EOF
 }
 
 have_cmd() {
   command -v "$1" >/dev/null 2>&1
+}
+
+have_feature() {
+  local feature_name="$1"
+
+  if ! have_cmd codex; then
+    return 1
+  fi
+
+  codex features list 2>/dev/null | awk '{print $1}' | grep -qx "$feature_name"
 }
 
 run_verify() {
@@ -30,27 +44,11 @@ run_verify() {
   "$verify_script"
 }
 
-run_codex() {
-  local tz_file="${1:-TZ_TEMPLATE.md}"
-
-  if [[ $# -gt 1 ]]; then
-    printf 'Too many arguments for codex command\n' >&2
-    usage
-    exit 1
-  fi
-
-  if ! have_cmd codex; then
-    printf 'Command not found: codex\n' >&2
-    exit 1
-  fi
-
-  if [[ ! -f "$tz_file" ]]; then
-    printf 'TZ file not found: %s\n' "$tz_file" >&2
-    exit 1
-  fi
-
+build_prompt() {
+  local tz_file="$1"
   local prompt
-  prompt="$(cat <<EOF
+
+  prompt="$(cat <<'EOF'
 Ты Orchestrator FastAPI-only шаблона. Не предлагай другой web stack.
 Сначала прочитай `project-stack.toml`. Это machine-readable source of truth для language/framework/orm/migration_tool/test_runner, di_library, message_framework/message_broker/message_transport, cache/db, container_runtime/compose_tool, api_runner/api_entrypoint и verify_entrypoint. Не заставляй агентов гадать стек, если профиль уже заполнен.
 Если `project-stack.toml` отсутствует, невалиден или противоречит реальности проекта — сначала исправь это как template-level blocker.
@@ -65,18 +63,68 @@ run_codex() {
    - docs/final-review.md -> Status != template
 2) ./scripts/verify.sh -> exit 0
 3) у Gatekeeper нет blocker-findings
-4) Acceptance checklist в ${tz_file} закрыт.
+4) Acceptance checklist в __TZ_FILE__ закрыт.
 5) Для backend-части есть изменения в runtime-коде и/или миграциях и/или тестах (не только docs/.codex).
 Проверяй фазовые артефакты по файлам и статус-маркерам, а не по summary агентов.
 Если backend skeleton отсутствует или явно не соответствует stack profile, сначала назначай Worker со skill `backend-bootstrap`, а не начинай feature implementation в пустом репозитории.
+Если в проекте нет reproducible bootstrap entrypoint для зависимостей (`./scripts/dev-bootstrap.sh`, `make dev-bootstrap`, `task dev-bootstrap` или эквивалент), сначала назначай Devenv на bootstrap среды, а уже потом Worker/Tests/Monitor.
 Если для реализации/тестов/verify нужен поднятый стек или API — сначала назначай Devenv.
+Не позволяй Worker/Tests/Monitor зависать на ad-hoc установке зависимостей; dependency bootstrap и startup flow — зона ответственности Devenv.
 В Phase 5 сначала запускай security-reviewer, consistency-reviewer и performance-reviewer параллельно, затем Gatekeeper.
 Если находишь blocker — сам запускай CR, назначай нужного агента, вноси правки и перезапускай только нужные фазы.
 Останавливайся только если нужен внешний ввод (секрет, доступ, бизнес-решение) — тогда задай один конкретный вопрос.
 EOF
 )"
 
-  codex --enable multi_agent "$prompt"
+  printf '%s' "${prompt//__TZ_FILE__/$tz_file}"
+}
+
+run_codex() {
+  local mode="$1"
+  shift
+  local tz_file="${1:-TZ_TEMPLATE.md}"
+  local prompt
+  local -a codex_args
+
+  if [[ $# -gt 1 ]]; then
+    printf 'Too many arguments for %s command\n' "$mode" >&2
+    usage
+    exit 1
+  fi
+
+  if ! have_cmd codex; then
+    printf 'Command not found: codex\n' >&2
+    exit 1
+  fi
+
+  if [[ ! -f "$tz_file" ]]; then
+    printf 'TZ file not found: %s\n' "$tz_file" >&2
+    exit 1
+  fi
+
+  prompt="$(build_prompt "$tz_file")"
+
+  codex_args=()
+  if have_feature multi_agent; then
+    codex_args+=(--enable multi_agent)
+  fi
+
+  case "$mode" in
+    codex)
+      ;;
+    codex-auto)
+      codex_args+=(--full-auto)
+      ;;
+    codex-danger)
+      codex_args+=(--dangerously-bypass-approvals-and-sandbox)
+      ;;
+    *)
+      printf 'Unknown Codex mode: %s\n' "$mode" >&2
+      exit 1
+      ;;
+  esac
+
+  codex "${codex_args[@]}" "$prompt"
 }
 
 command_name="${1:-verify}"
@@ -89,7 +137,13 @@ case "$command_name" in
     run_verify "$@"
     ;;
   codex)
-    run_codex "$@"
+    run_codex codex "$@"
+    ;;
+  codex-auto)
+    run_codex codex-auto "$@"
+    ;;
+  codex-danger)
+    run_codex codex-danger "$@"
     ;;
   help|-h|--help)
     usage

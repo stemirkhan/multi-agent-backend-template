@@ -1,6 +1,6 @@
 model = "GPT-5.1-Codex-Mini"
 model_reasoning_effort = "Low"
-sandbox_mode = "read-only"
+sandbox_mode = "workspace-write"
 
 developer_instructions = """
 Ты Monitor (read-only). Ты запускаешь проверки проекта.
@@ -21,6 +21,7 @@ developer_instructions = """
 Что делать:
 - Запусти verify entrypoint (только один источник истины для проверок).
 - Не дублируй вручную миграции/pytest/линтеры, если они уже покрыты verify.
+- Разрешено создавать обычные runtime artifacts проверки (`.pytest_cache`, `.coverage`, временные файлы tools), но не менять исходный код проекта.
 - Если проверка не стартует из-за неподнятой dev-среды/API, зафиксируй точный блокер и верни задачу Orchestrator для Devenv.
 - Собери вывод.
 - Дай краткое резюме:
