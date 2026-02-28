@@ -15,6 +15,50 @@ Machine-readable stack profile проекта: `project-stack.toml`
 - тесты и verify-проходы зелёные;
 - нет blocker-рисков по безопасности и корректности.
 
+## Как создать новый backend из шаблона
+
+1. Скопировать шаблон в новый репозиторий.
+2. Проверить и при необходимости обновить `project-stack.toml` под реальный стек проекта.
+3. Заполнить `TZ_TEMPLATE.md` или создать отдельный `backend_tz_from_template.md` на его основе.
+4. Добавить или уточнить reproducible entrypoint'ы проекта, если они уже известны:
+   - `./scripts/dev-up.sh`
+   - `./scripts/dev-api.sh`
+   - `make dev-up`
+   - `make run-api`
+   - `make verify`
+5. Проверить сам шаблон:
+
+```bash
+./run.sh verify
+```
+
+6. Запустить первый multi-agent прогон:
+
+```bash
+./run.sh codex
+```
+
+или:
+
+```bash
+./run.sh codex backend_tz_from_template.md
+```
+
+## Что должен заполнить пользователь
+
+До первого прогона пользователь должен явно заполнить хотя бы эти входы:
+
+- `project-stack.toml`: реальный stack profile, entrypoint'ы API и verify, container runtime, broker/cache/DB.
+- `TZ_TEMPLATE.md` или отдельный `backend_tz_from_template.md`: цель MVP, FR/NFR, API/DB assumptions, RBAC, acceptance checklist.
+
+Желательно подготовить заранее:
+
+- `README.md` разделы с project-specific командами запуска и проверки, если они отличаются от шаблонных.
+- `./scripts/dev-up.sh` и `./scripts/dev-api.sh` либо `make`/`task` entrypoint'ы, если локальный startup flow уже известен.
+
+Не нужно вручную заполнять фазовые артефакты `docs/*.md` и `openapi.yaml` как готовый результат до прогона.
+Они уже существуют как template artifacts и должны быть обновлены агентами по ходу workflow.
+
 ## Stack Assumptions
 
 Source of truth для стека и runtime tooling: `project-stack.toml`
@@ -162,6 +206,26 @@ Phase 5 — Review
 - При blocker-issue задача возвращается соответствующему владельцу фазы.
 - Артефакт фазы: `docs/final-review.md`.
 
+## Что должно появиться после первого multi-agent прогона
+
+Минимально разумный первый прогон должен оставить после себя не только summary, но и файловые следы работы:
+
+- `docs/architecture.md` с `Status != template`
+- минимум один `docs/adr/ADR-*.md`
+- `openapi.yaml` с `x-template-status != template`
+- `docs/schema-decisions.md` с `Status != template`
+- `docs/dev-environment.md` с `Status != template`
+- `docs/test-matrix.md` с `Status != template`
+- `docs/final-review.md` с `Status != template`
+
+Кроме документов, должны появиться реальные backend-изменения хотя бы в одной из зон:
+
+- runtime-код
+- миграции
+- тесты
+
+Если во время прогона всплыл конфликт между контрактами, допустимым артефактом также считается явный Change Request, а не молчаливое расхождение между API и DB.
+
 ## Фазовые артефакты по умолчанию
 
 - `docs/architecture.md`: Phase 1, владелец `Architect`.
@@ -215,6 +279,18 @@ Phase 5 — Review
 - backend-изменения внесены в исходники и/или миграции и/или тесты (не только в docs/.codex);
 - `./scripts/verify.sh` завершается с exit code `0`;
 - у Gatekeeper нет blocker issues по итогам review.
+
+## Что считается плохим прогоном
+
+Плохой прогон для этого шаблона обычно выглядит так:
+
+- изменились только `docs/`, `.codex/` или ТЗ, но нет runtime-кода, миграций или тестов;
+- фазовые артефакты остались в template-state (`Status: template` или `x-template-status: template`);
+- `project-stack.toml` не соответствует реальному проекту, а агенты работают по ложным assumptions;
+- Orchestrator остановился на summary, хотя `verify` не зелёный или у Gatekeeper есть blocker findings;
+- API и DB разошлись, но Change Request не был оформлен явно;
+- для тестов или verify нужен поднятый стек, но Devenv не был задействован;
+- первый прогон не оставил воспроизводимых startup/verify подсказок для следующей итерации.
 
 ## Запуск через run.sh
 
