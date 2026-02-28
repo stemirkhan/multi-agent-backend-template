@@ -407,13 +407,22 @@ Multi-agent запуск Codex:
 Требования для `./run.sh codex`:
 
 - команда `codex` доступна в `PATH`;
+- в `~/.codex/config.toml` должен существовать профиль `multi_agent_backend` (или профиль из `CODEX_MULTI_AGENT_PROFILE`);
 - если используемая версия `codex` поддерживает feature flag `multi_agent`, `run.sh` включит его автоматически.
+
+Минимально рекомендуемый профиль:
+
+```toml
+[profiles.multi_agent_backend]
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
+```
 
 Режимы запуска:
 
-- `./run.sh codex ...`: интерактивный режим с обычными approvals.
-- `./run.sh codex-auto ...`: меньше ручных подтверждений, но sandbox может всё ещё остановить install/container/network операции.
-- `./run.sh codex-danger ...`: без approvals и без sandbox. Это режим для изолированной dev-машины/VM, когда не хочется останавливать workflow на `.venv` bootstrap, `pip install`, контейнерах и похожих операциях.
+- `./run.sh codex ...`: запускает шаблон через обязательный профиль `multi_agent_backend`.
+- `./run.sh codex-auto ...`: использует тот же профиль, но принудительно переключает Codex в `--full-auto`.
+- `./run.sh codex-danger ...`: использует тот же профиль, но принудительно переключает Codex в `--dangerously-bypass-approvals-and-sandbox`.
 
 ## How to test
 

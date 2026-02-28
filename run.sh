@@ -10,11 +10,11 @@ Usage: ./run.sh [command]
 
 Commands:
   verify             Run project verification checks (default)
-  codex [tz_file]    Run Codex with interactive approvals (default tz_file: TZ_TEMPLATE.md)
+  codex [tz_file]    Run Codex via the required multi-agent profile
   codex-auto [tz_file]
-                     Run Codex in low-friction sandboxed mode (--full-auto)
+                     Run Codex via the profile, but override to --full-auto
   codex-danger [tz_file]
-                     Run Codex with no approvals and no sandbox
+                     Run Codex via the profile, but override to danger-full-access
   help               Show this help message
 EOF
 }
@@ -31,6 +31,35 @@ have_feature() {
   fi
 
   codex features list 2>/dev/null | awk '{print $1}' | grep -qx "$feature_name"
+}
+
+codex_config_path() {
+  printf '%s' "${CODEX_HOME:-$HOME/.codex}/config.toml"
+}
+
+codex_profile_name() {
+  printf '%s' "${CODEX_MULTI_AGENT_PROFILE:-multi_agent_backend}"
+}
+
+ensure_codex_profile() {
+  local config_path
+  local profile_name
+
+  config_path="$(codex_config_path)"
+  profile_name="$(codex_profile_name)"
+
+  if [[ ! -f "$config_path" ]]; then
+    printf 'Codex config not found: %s\n' "$config_path" >&2
+    printf 'Create profile [%s] in that file before running multi-agent template.\n' "$profile_name" >&2
+    exit 1
+  fi
+
+  if ! grep -q "^\[profiles\.${profile_name//./\\.}\]$" "$config_path"; then
+    printf 'Required Codex profile is missing: %s\n' "$profile_name" >&2
+    printf 'Add this to %s:\n' "$config_path" >&2
+    printf '\n[profiles.%s]\napproval_policy = "never"\nsandbox_mode = "danger-full-access"\n' "$profile_name" >&2
+    exit 1
+  fi
 }
 
 run_verify() {
@@ -99,6 +128,8 @@ run_codex() {
     exit 1
   fi
 
+  ensure_codex_profile
+
   if [[ ! -f "$tz_file" ]]; then
     printf 'TZ file not found: %s\n' "$tz_file" >&2
     exit 1
@@ -107,6 +138,7 @@ run_codex() {
   prompt="$(build_prompt "$tz_file")"
 
   codex_args=()
+  codex_args+=(--profile "$(codex_profile_name)")
   if have_feature multi_agent; then
     codex_args+=(--enable multi_agent)
   fi
