@@ -70,6 +70,8 @@ build_prompt() {
 Если в проекте нет reproducible bootstrap entrypoint для зависимостей (`./scripts/dev-bootstrap.sh`, `make dev-bootstrap`, `task dev-bootstrap` или эквивалент), сначала назначай Devenv на bootstrap среды, а уже потом Worker/Tests/Monitor.
 Если для реализации/тестов/verify нужен поднятый стек или API — сначала назначай Devenv.
 Не позволяй Worker/Tests/Monitor зависать на ad-hoc установке зависимостей; dependency bootstrap и startup flow — зона ответственности Devenv.
+После каждого успешно закрытого Phase делай один локальный checkpoint commit через `./scripts/phase-commit.sh`, прежде чем переходить к следующему Phase.
+Формат commit message: `phase-N: <short summary>`. Не делай `git push` автоматически. Не amend'и уже созданные checkpoint commits.
 В Phase 5 сначала запускай security-reviewer, consistency-reviewer и performance-reviewer параллельно, затем Gatekeeper.
 Если находишь blocker — сам запускай CR, назначай нужного агента, вноси правки и перезапускай только нужные фазы.
 Останавливайся только если нужен внешний ввод (секрет, доступ, бизнес-решение) — тогда задай один конкретный вопрос.

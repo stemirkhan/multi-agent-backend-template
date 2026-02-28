@@ -199,12 +199,14 @@ Phase 1 — Architecture
 
 - Architect фиксирует архитектурные решения и ограничения.
 - Артефакты фазы: `docs/architecture.md` и минимум один `docs/adr/ADR-*.md`.
+- После успешного закрытия фазы Orchestrator делает локальный checkpoint commit.
 
 Phase 2 — Contracts
 
 - DB и API работают параллельно.
 - Orchestrator проверяет совместимость контрактов.
 - Артефакты фазы: `openapi.yaml` и `docs/schema-decisions.md`.
+- После успешного закрытия фазы Orchestrator делает локальный checkpoint commit.
 
 Phase 3 — Dev Environment + Implementation
 
@@ -212,12 +214,14 @@ Phase 3 — Dev Environment + Implementation
 - Worker реализует функциональность строго по контрактам в runtime backend-коде.
 - Артефакт фазы: `docs/dev-environment.md`.
 - Изменения только в документации не считаются завершением Phase 3.
+- После успешного закрытия фазы Orchestrator делает локальный checkpoint commit.
 
 Phase 4 — Testing
 
 - Tests добавляет/обновляет тесты.
 - Monitor запускает verify entrypoint и публикует результат.
 - Артефакт фазы: `docs/test-matrix.md`.
+- После успешного закрытия фазы Orchestrator делает локальный checkpoint commit.
 
 Phase 5 — Review
 
@@ -225,6 +229,17 @@ Phase 5 — Review
 - Gatekeeper агрегирует findings и ставит финальный gate.
 - При blocker-issue задача возвращается соответствующему владельцу фазы.
 - Артефакт фазы: `docs/final-review.md`.
+- После успешного закрытия фазы Orchestrator делает локальный checkpoint commit.
+
+Формат phase checkpoint commits:
+
+- `phase-1: architecture and adr`
+- `phase-2: api and db contracts`
+- `phase-3: bootstrap and implementation`
+- `phase-4: tests and verify`
+- `phase-5: final review and gate`
+
+Для checkpoint commits используется `./scripts/phase-commit.sh`. Шаблон не делает `git push` автоматически.
 
 ## Что должно появиться после первого multi-agent прогона
 

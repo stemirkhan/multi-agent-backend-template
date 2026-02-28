@@ -295,6 +295,22 @@ check_default_phase_artifacts_present() {
   [[ "$has_errors" -eq 0 ]]
 }
 
+check_phase_commit_helper() {
+  local helper="./scripts/phase-commit.sh"
+
+  if [[ ! -f "$helper" ]]; then
+    log "Missing ${helper}"
+    return 1
+  fi
+
+  if [[ ! -x "$helper" ]]; then
+    log "${helper} is not executable"
+    return 1
+  fi
+
+  return 0
+}
+
 check_project_skills() {
   local validator="/home/temirkhan/.codex/skills/.system/skill-creator/scripts/quick_validate.py"
   local required_skills=(
@@ -367,6 +383,7 @@ run_check "Local security defaults are present" check_local_security_defaults
 run_check "Project stack profile is present and valid" check_project_stack_profile
 run_check "README references verify entrypoint" check_readme_verify_entrypoint
 run_check "Default phase artifacts are present" check_default_phase_artifacts_present
+run_check "Phase commit helper is present" check_phase_commit_helper
 run_check "Project skills are present and valid" check_project_skills
 
 if [[ "$CHECKS_RUN" -eq 0 ]]; then

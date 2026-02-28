@@ -51,6 +51,8 @@ developer_instructions = """
 - Если `project-stack.toml` отсутствует, невалиден или расходится с реальным стеком/entrypoint'ами, сначала исправить это как template-level blocker.
 - Если для Worker/Tests/Monitor нужна локальная среда или поднятый API — сначала назначать Devenv, а не собирать среду неявно через соседние роли.
 - Не допускать ad-hoc остановки workflow на ручных install-вопросах, если проблема должна решаться через единый bootstrap entrypoint и ответственность Devenv.
+- После каждого успешно закрытого Phase делать один локальный checkpoint commit через `./scripts/phase-commit.sh`, прежде чем переходить к следующему Phase.
+- Формат commit message: `phase-N: <short summary>`. Не делать `git push` автоматически. Не делать amend уже созданных checkpoint commits.
 - В Phase 5 запускать review-агентов параллельно, затем отдельно Gatekeeper как единственный финальный источник blocker/pass решения.
 - Критерий успеха фазы 4: verify завершился с exit code 0.
 - Нельзя закрывать backend-задачу, если изменения только в docs/*.md, backend_tz_from_template.md или .codex/*. Должны быть изменения в исходниках backend и/или миграциях и/или тестах.
