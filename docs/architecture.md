@@ -3,8 +3,8 @@ Status: template
 Owner: Architect
 Phase: 1
 
-Этот файл обязателен для Phase 1.
-Перед закрытием фазы замени шаблонные пункты на реальные решения и обнови `Status:`.
+This file is required for Phase 1.
+Before closing the phase, replace template placeholders with real decisions and update `Status:`.
 
 ## 1. System Scope
 - Product/domain:

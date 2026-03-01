@@ -3,8 +3,8 @@ Status: template
 Owner: Devenv
 Phase: 3
 
-Этот файл обязателен для Phase 3.
-Перед закрытием фазы зафиксируй воспроизводимый локальный startup flow и обнови `Status:`.
+This file is required for Phase 3.
+Before closing the phase, document a reproducible local startup flow and update `Status:`.
 
 ## 0. Dependency Bootstrap
 - Command:

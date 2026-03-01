@@ -1,12 +1,12 @@
-# ТЗ проекта: <PROJECT_NAME>
-Версия: <v1.0>
-Дата: <YYYY-MM-DD>
+# Project Spec: <PROJECT_NAME>
+Version: <v1.0>
+Date: <YYYY-MM-DD>
 Owner: <NAME/TEAM>
 
 ## 0. Stack Profile
 Machine-readable source of truth: `project-stack.toml`
 
-Этот раздел должен оставаться синхронизированным с `project-stack.toml`.
+This section must stay synchronized with `project-stack.toml`.
 
 - Language/framework: `python` + `fastapi`
 - Schemas/validation: `Pydantic`
@@ -18,143 +18,144 @@ Machine-readable source of truth: `project-stack.toml`
 - API runtime: `uvicorn` -> `app.main:app`
 - Verify entrypoint: `./scripts/verify.sh`
 
-## 1. Цель и границы
-### 1.1 Цель MVP
-- <Измеримый бизнес-результат 1>
-- <Измеримый бизнес-результат 2>
+## 1. Goal And Scope
+### 1.1 MVP Goal
+- <Measurable business outcome 1>
+- <Measurable business outcome 2>
 
 ### 1.2 In Scope
-- <Что точно входит в MVP>
+- <What is definitely in MVP>
 
 ### 1.3 Out of Scope
-- <Что не делаем в MVP>
+- <What we are not doing in MVP>
 
-## 2. Бизнес-сценарии
-### US-001: <Название сценария>
-- Актор: <кто>
-- Предусловия: <что должно быть до старта>
-- Шаги: <кратко>
-- Результат: <ожидаемый результат>
+## 2. Business Scenarios
+### US-001: <Scenario Name>
+- Actor: <who>
+- Preconditions: <what must be true before start>
+- Steps: <briefly>
+- Result: <expected result>
 
-### US-002: <Название сценария>
-- Актор: <кто>
-- Предусловия: <...>
-- Шаги: <...>
-- Результат: <...>
+### US-002: <Scenario Name>
+- Actor: <who>
+- Preconditions: <...>
+- Steps: <...>
+- Result: <...>
 
-## 3. Глоссарий
-- <Термин 1>: <определение>
-- <Термин 2>: <определение>
+## 3. Glossary
+- <Term 1>: <definition>
+- <Term 2>: <definition>
 
-## 4. Функциональные требования (FR)
-- FR-001: <требование>, вход: <...>, выход: <...>, ограничения: <...>
-- FR-002: <требование>, вход: <...>, выход: <...>, ограничения: <...>
+## 4. Functional Requirements (FR)
+- FR-001: <requirement>, input: <...>, output: <...>, constraints: <...>
+- FR-002: <requirement>, input: <...>, output: <...>, constraints: <...>
 
-## 5. Нефункциональные требования (NFR)
+## 5. Non-Functional Requirements (NFR)
 - NFR-001 (Performance): <p95/p99, SLA/SLO>
 - NFR-002 (Security): <auth, RBAC, ownership, secrets>
 - NFR-003 (Reliability): <retry, timeout, idempotency>
-- NFR-004 (Observability): <логи, метрики, алерты, трассировка>
+- NFR-004 (Observability): <logs, metrics, alerts, tracing>
 
 ### 5.1 Bootstrap and Code Conventions
-- Settings/env: `pydantic-settings`, `.env` не коммитится, `.env.example` обязателен
-- Error model: единый `AppError`-style contract с `code`, `message`, `details`
-- Service/Repository boundary: бизнес-логика и транзакции в сервисах/UoW, репозитории без `commit` / `rollback`
-- Public typing: публичные интерфейсы типизированы
+- Settings/env: `pydantic-settings`, `.env` is not committed, `.env.example` is required
+- Error model: one unified `AppError`-style contract with `code`, `message`, `details`
+- Service/Repository boundary: business logic and transactions live in services/UoW, repositories do not do `commit` / `rollback`
+- Public typing: public interfaces are typed
 
-## 6. Архитектурные решения (ADR-ready)
-- Очереди/фоновые задачи: <описание>
-- Кэш: ключи, TTL, инвалидация: <описание>
-- Границы безопасности: <ownership boundary>
-- Транзакционные границы: <где атомарность обязательна>
+## 6. Architectural Decisions (ADR-ready)
+- Queues/background jobs: <description>
+- Cache: keys, TTL, invalidation: <description>
+- Security boundaries: <ownership boundary>
+- Transaction boundaries: <where atomicity is mandatory>
 
-## 7. Контракт БД
-### 7.1 Сущности
-- <Entity>: поля (<type>, nullable, default), PK/FK, ограничения
+## 7. DB Contract
+### 7.1 Entities
+- <Entity>: fields (<type>, nullable, default), PK/FK, constraints
 
-### 7.2 Индексы
-- IDX-001: <таблица/поля>, для запроса: <какой>
-- IDX-002: <таблица/поля>, для сортировки: <какой>
+### 7.2 Indexes
+- IDX-001: <table/fields>, for query: <which one>
+- IDX-002: <table/fields>, for sorting: <which one>
 
-### 7.3 Политики данных
-- Soft delete: <да/нет, как>
-- created_at/updated_at: <правило>
-- Миграции: forward-only, без правок примененных ревизий
+### 7.3 Data Policies
+- Soft delete: <yes/no, how>
+- created_at/updated_at: <rule>
+- Migrations: forward-only, no edits to applied revisions
 
-## 8. API контракт v1
+## 8. API Contract v1
 ### 8.1 Endpoint
 - `METHOD /api/v1/<path>`
-- Auth: <роль/политика>
-- Request schema: <поля>
-- Response schema: <поля>
+- Auth: <role/policy>
+- Request schema: <fields>
+- Response schema: <fields>
 - Errors: <error_code + HTTP status>
 
 ### 8.2 Idempotency matrix
 - `POST /...`: Idempotency-Key <required|optional>, scope: <...>, TTL: <...>
 - `POST /...`: Idempotency-Key <required|optional>, scope: <...>, TTL: <...>
 
-## 9. RBAC и ownership matrix
-- Роль `<role_a>`: allow `<endpoint_list>`, deny `<endpoint_list>`
-- Роль `<role_b>`: allow `<endpoint_list>`, deny `<endpoint_list>`
-- Ownership правило: `<entity_owner_id == user_id>`
+## 9. RBAC And Ownership Matrix
+- Role `<role_a>`: allow `<endpoint_list>`, deny `<endpoint_list>`
+- Role `<role_b>`: allow `<endpoint_list>`, deny `<endpoint_list>`
+- Ownership rule: `<entity_owner_id == user_id>`
 
-## 10. Интеграции и события
+## 10. Integrations And Events
 - Event: `<name>`, producer: `<service>`, consumer: `<service>`, payload: `<schema>`
-- Retry/DLQ policy: <описание>
+- Retry/DLQ policy: <description>
 
-## 11. Тестовая стратегия
-- Unit: <ключевые проверки>
+## 11. Test Strategy
+- Unit: <key checks>
 - Integration: <API + DB + cache/queue>
 - Contract: <OpenAPI/error format/idempotency>
 - Security: <RBAC/ownership/negative tests>
-- Acceptance: <E2E критерии>
+- Acceptance: <E2E criteria>
 
-## 12. План релиза
-- Rollout шаги: <1..N>
-- Rollback условия: <когда откатываем>
-- Rollback шаги: <как откатываем>
-- Data backfill (если нужно): <как и когда>
+## 12. Release Plan
+- Rollout steps: <1..N>
+- Rollback conditions: <when we roll back>
+- Rollback steps: <how we roll back>
+- Data backfill (if needed): <how and when>
 
 ## 13. Acceptance checklist (Definition of Done)
-- [ ] Все FR выполнены
-- [ ] NFR подтверждены метриками/тестами
-- [ ] Миграции применяются на чистой БД
-- [ ] RBAC/ownership покрыт тестами
-- [ ] Idempotency подтверждена тестами
-- [ ] Локальная dev-среда и API стартуют воспроизводимо
-- [ ] `.env.example` присутствует, а секреты не закоммичены и не захардкожены
-- [ ] Единый error contract и безопасные публичные сообщения соблюдены
-- [ ] Граница `Service` / `Repository` соблюдена, транзакции не управляются из репозиториев
-- [ ] `project-stack.toml` соответствует реальному стеку и entrypoint'ам проекта
-- [ ] Фазовые артефакты обновлены: `docs/architecture.md`, `docs/adr/ADR-*.md`, `openapi.yaml`, `docs/dev-environment.md`, `docs/schema-decisions.md`, `docs/test-matrix.md`, `docs/final-review.md`
-- [ ] `./scripts/verify.sh` завершился с exit code 0
+- [ ] All FRs are completed
+- [ ] NFRs are confirmed by metrics/tests
+- [ ] Migrations apply to a clean DB
+- [ ] RBAC/ownership is covered by tests
+- [ ] Idempotency is confirmed by tests
+- [ ] Local dev environment and API start reproducibly
+- [ ] `.env.example` is present, and secrets are neither committed nor hardcoded
+- [ ] Unified error contract and safe public messages are enforced
+- [ ] `Service` / `Repository` boundary is respected, transactions are not controlled from repositories
+- [ ] `project-stack.toml` matches the real project stack and entrypoints
+- [ ] Phase artifacts are updated: `docs/architecture.md`, `docs/adr/ADR-*.md`, `openapi.yaml`, `docs/dev-environment.md`, `docs/schema-decisions.md`, `docs/test-matrix.md`, `docs/final-review.md`
+- [ ] `./scripts/verify.sh` exits with code 0
+- [ ] `./scripts/verify.sh` exits with code 0
 
-## 14. Ownership по агентам
-- Architect: владеет разделами 5/6, `docs/architecture.md` и архитектурными ADR в `docs/adr/`
-- DB: владеет разделом 7, SQLAlchemy/Alembic слоем и `docs/schema-decisions.md`
-- API: владеет разделом 8, FastAPI/Pydantic контрактом и `openapi.yaml`
-- Devenv: локальный FastAPI runtime/bootstrap, `docs/dev-environment.md`
-- Worker: реализация FastAPI backend по контрактам
-- Tests: стратегия и тесты FastAPI backend из раздела 11, `docs/test-matrix.md`
+## 14. Ownership By Agent
+- Architect: owns sections 5/6, `docs/architecture.md`, and architectural ADRs in `docs/adr/`
+- DB: owns section 7, the SQLAlchemy/Alembic layer, and `docs/schema-decisions.md`
+- API: owns section 8, the FastAPI/Pydantic contract, and `openapi.yaml`
+- Devenv: local FastAPI runtime/bootstrap, `docs/dev-environment.md`
+- Worker: FastAPI backend implementation against the contracts
+- Tests: strategy and FastAPI backend tests from section 11, `docs/test-matrix.md`
 - Security Reviewer: access control, ownership, auth/rbac, secret leakage review
 - Consistency Reviewer: idempotency, transactions, races, duplicate side effects review
 - Performance Reviewer: N+1, indexes, heavy sorts, query shape review
-- Gatekeeper: агрегирует review-findings и владеет `docs/final-review.md`
-- Monitor: запуск verify и сводка результатов
+- Gatekeeper: aggregates review findings and owns `docs/final-review.md`
+- Monitor: runs verify and summarizes results
 
-## 15. Фазовые артефакты по умолчанию
+## 15. Default Phase Artifacts
 - Phase 1: `docs/architecture.md`, `docs/adr/ADR-*.md`
 - Phase 2: `openapi.yaml`, `docs/schema-decisions.md`
 - Phase 3: `docs/dev-environment.md`
 - Phase 4: `docs/test-matrix.md`
 - Phase 5: `docs/final-review.md`
-- Markdown-артефакты должны обновить `Status:` с `template` на рабочее значение.
-- `openapi.yaml` должен обновить `x-template-status:` с `template` на рабочее значение.
+- Markdown artifacts must update `Status:` from `template` to a working value.
+- `openapi.yaml` must update `x-template-status:` from `template` to a working value.
 
 ## 16. Change Request Protocol
-- Что меняем: <контракт/правило/поле/endpoint>
-- Почему: <блокер/несовместимость>
+- What changes: <contract/rule/field/endpoint>
+- Why: <blocker/incompatibility>
 - Impact: <API/DB/tests/rollout>
-- Совместимость: <backward-compatible yes/no/partial>
-- План проверки: <какие проверки должны пройти>
-- Ответственный и следующий шаг: <кто делает что>
+- Compatibility: <backward-compatible yes/no/partial>
+- Verification plan: <which checks must pass>
+- Owner and next step: <who does what>

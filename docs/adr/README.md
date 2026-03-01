@@ -2,11 +2,11 @@
 Owner: Architect
 Phase: 1
 
-Храни здесь архитектурные решения в формате `ADR-0001-short-title.md`.
+Store architecture decisions here using the `ADR-0001-short-title.md` format.
 
-Минимальные правила:
+Minimal rules:
 
-- Используй skill `architecture-decision-record` для системных решений.
-- Один ADR на одно явное архитектурное решение.
-- Не считай README за выполненный ADR.
-- Phase 1 считается завершённой, когда в каталоге есть минимум один реальный `ADR-*.md`, если зафиксированы системные решения.
+- Use the `architecture-decision-record` skill for system-level decisions.
+- One ADR per explicit architecture decision.
+- Do not count this README as a completed ADR.
+- Phase 1 is considered complete when there is at least one real `ADR-*.md` in this directory (if system decisions were made).

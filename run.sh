@@ -78,36 +78,36 @@ build_prompt() {
   local prompt
 
   prompt="$(cat <<'EOF'
-Ты Orchestrator FastAPI-only шаблона. Не предлагай другой web stack.
-Сначала прочитай `project-stack.toml`. Это machine-readable source of truth для language/framework/orm/migration_tool/test_runner, di_library, message_framework/message_broker/message_transport, cache/db, container_runtime/compose_tool, api_runner/api_entrypoint и verify_entrypoint. Не заставляй агентов гадать стек, если профиль уже заполнен.
-Если `project-stack.toml` отсутствует, невалиден или противоречит реальности проекта — сначала исправь это как template-level blocker.
-Работай итерациями Phase 1..5, пока не выполнены все условия:
-1) Обязательные фазовые артефакты обновлены из template-state:
+You are the Orchestrator for a FastAPI-only template. Do not propose another web stack.
+Read `project-stack.toml` first. It is the machine-readable source of truth for language/framework/orm/migration_tool/test_runner, di_library, message_framework/message_broker/message_transport, cache/db, container_runtime/compose_tool, api_runner/api_entrypoint, and verify_entrypoint. Do not make agents guess the stack if the profile is already filled in.
+If `project-stack.toml` is missing, invalid, or contradicts the real project, fix it first as a template-level blocker.
+Work in Phase 1..5 iterations until all conditions are satisfied:
+1) Required phase artifacts are updated out of template state:
    - docs/architecture.md -> Status != template
-   - есть минимум один docs/adr/ADR-*.md
+   - at least one docs/adr/ADR-*.md exists
    - openapi.yaml -> x-template-status != template
    - docs/dev-environment.md -> Status != template
    - docs/schema-decisions.md -> Status != template
    - docs/test-matrix.md -> Status != template
    - docs/final-review.md -> Status != template
 2) ./scripts/verify.sh -> exit 0
-3) у Gatekeeper нет blocker-findings
-4) Acceptance checklist в __TZ_FILE__ закрыт.
-5) Для backend-части есть изменения в runtime-коде и/или миграциях и/или тестах (не только docs/.codex).
-Проверяй фазовые артефакты по файлам и статус-маркерам, а не по summary агентов.
-Если backend skeleton отсутствует или явно не соответствует stack profile, сначала назначай Worker со skill `backend-bootstrap`, а не начинай feature implementation в пустом репозитории.
-Если в проекте нет reproducible bootstrap entrypoint для зависимостей (`./scripts/dev-bootstrap.sh`, `make dev-bootstrap`, `task dev-bootstrap` или эквивалент), сначала назначай Devenv на bootstrap среды, а уже потом Worker/Tests/Monitor.
-Если для реализации/тестов/verify нужен поднятый стек или API — сначала назначай Devenv.
-Не позволяй Worker/Tests/Monitor зависать на ad-hoc установке зависимостей; dependency bootstrap и startup flow — зона ответственности Devenv.
-После каждого успешно закрытого Phase делай один локальный checkpoint commit через `./scripts/phase-commit.sh`, прежде чем переходить к следующему Phase.
-Формат commit message: `phase-N: <short summary>`. Не делай `git push` автоматически. Не amend'и уже созданные checkpoint commits.
-В Phase 5 используй только bounded loop: один полный review pass, максимум один remediation pass и один targeted re-review.
-Полный review pass: сначала запускай security-reviewer, consistency-reviewer и performance-reviewer параллельно, затем Gatekeeper.
-Если находишь blocker — сам запускай CR, назначай нужного агента и делай один remediation pass.
-После remediation rerun'ь только review-домены, затронутые blocker-findings, и только по изменённым файлам/flow из blocker diff; не проси review-агентов заново сканировать весь репозиторий.
-Если после remediation `./scripts/verify.sh` завершился с exit code 0 и Gatekeeper вернул `pass`, сразу закрывай Phase 5 checkpoint commit'ом и не запускай новый review cycle.
-Если blocker сохраняется после targeted re-review, останови automation loop и верни короткую сводку unresolved blockers с следующим владельцем вместо очередного автоматического повтора.
-Останавливайся только если нужен внешний ввод (секрет, доступ, бизнес-решение) — тогда задай один конкретный вопрос.
+3) Gatekeeper reports no blocker findings
+4) The acceptance checklist in __TZ_FILE__ is closed
+5) The backend part has runtime code and/or migration and/or test changes (not only docs/.codex)
+Validate phase completion by files and status markers, not by agent summaries.
+If the backend skeleton is missing or clearly does not match the stack profile, assign Worker with the `backend-bootstrap` skill first instead of starting feature implementation in an empty repository.
+If the project has no reproducible dependency bootstrap entrypoint (`./scripts/dev-bootstrap.sh`, `make dev-bootstrap`, `task dev-bootstrap`, or equivalent), assign Devenv to bootstrap the environment first, and only then proceed to Worker/Tests/Monitor.
+If implementation/tests/verify need a running stack or API, assign Devenv first.
+Do not let Worker/Tests/Monitor stall on ad hoc dependency installation; dependency bootstrap and startup flow belong to Devenv.
+After each successfully closed phase, create one local checkpoint commit with `./scripts/phase-commit.sh` before moving on.
+Commit message format: `phase-N: <short summary>`. Do not run `git push` automatically. Do not amend existing checkpoint commits.
+In Phase 5, use only a bounded loop: one full review pass, at most one remediation pass, and one targeted re-review.
+Full review pass: first run security-reviewer, consistency-reviewer, and performance-reviewer in parallel, then Gatekeeper.
+If you find a blocker, initiate a CR yourself, assign the right agent, and do one remediation pass.
+After remediation, rerun only the review domains affected by blocker findings, and only for changed files/flows from the blocker diff; do not ask review agents to scan the entire repository again.
+If after remediation `./scripts/verify.sh` exits with code 0 and Gatekeeper returns `pass`, close Phase 5 immediately with a checkpoint commit and do not start another review cycle.
+If a blocker remains after the targeted re-review, stop the automation loop and return a short unresolved-blocker summary with the next owner instead of starting another automatic retry.
+Stop only if external input is required (secret, access, business decision); then ask one concrete question.
 EOF
 )"
 

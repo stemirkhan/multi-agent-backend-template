@@ -1,15 +1,15 @@
 # Bootstrap Project Layout
 
-Используй этот reference, когда нужно быстро создать минимальный, но coherent skeleton под stack profile шаблона.
+Use this reference when you need to quickly create a minimal but coherent skeleton for the template's stack profile.
 
-## Принципы
+## Principles
 
-- Следуй `project-stack.toml`.
-- Если `api_entrypoint` указывает на `app.main:app`, дефолтный корень layout — `app/`.
-- Если в репозитории уже есть устоявшийся root package и он совместим с entrypoint'ом, не ломай его только ради шаблонной красоты.
-- Создавай extension points, а не фальшивую продуктовую реализацию.
+- Follow `project-stack.toml`.
+- If `api_entrypoint` points to `app.main:app`, the default layout root is `app/`.
+- If the repository already has an established root package compatible with the entrypoint, do not break it just for template aesthetics.
+- Create extension points, not fake product implementation.
 
-## Минимальная структура по умолчанию
+## Default Minimal Structure
 
 ```text
 .gitignore
@@ -68,23 +68,23 @@ scripts/
   dev-api.sh
 ```
 
-## Что должно появиться минимум
+## Minimum Required Output
 
-- `main.py` с FastAPI app и подключением router/handlers.
-- базовый config/settings слой на `pydantic-settings`.
-- база для DI wiring.
-- база для SQLAlchemy session/bootstrap.
-- база для FastStream broker/consumer wiring.
-- слой ошибок и единая точка exception handlers.
-- `.env.example` и `.gitignore`, чтобы локальные секреты не попадали в git.
-- минимальный tool configuration layer (`ruff format` / `ruff`, `pytest`, типизация публичных интерфейсов).
-- тестовый skeleton, достаточный для smoke/integration foundation.
-- reproducible entrypoint'ы для dev-среды и локального API, если их ещё не было.
+- `main.py` with the FastAPI app and router/handler registration.
+- a base config/settings layer using `pydantic-settings`.
+- a base for DI wiring.
+- a base for SQLAlchemy session/bootstrap.
+- a base for FastStream broker/consumer wiring.
+- the error layer and one unified exception-handler entrypoint.
+- `.env.example` and `.gitignore` so local secrets do not end up in git.
+- a minimal tool-configuration layer (`ruff format` / `ruff`, `pytest`, typed public interfaces).
+- a test skeleton sufficient for smoke/integration foundation.
+- reproducible entrypoints for the dev environment and local API if they did not exist yet.
 
-## Чего не делать
+## What Not To Do
 
-- не придумывать продуктовые endpoint'ы только ради наполнения router;
-- не создавать выдуманные SQLAlchemy модели без контракта DB;
-- не прошивать бизнес-правила в bootstrap;
-- не хранить секреты в коде, `pyproject.toml` или коммитнутом `.env`;
-- не плодить каталоги "на всякий случай", если они не несут ownership-смысла.
+- do not invent product endpoints just to populate the router;
+- do not create invented SQLAlchemy models without a DB contract;
+- do not bake business rules into bootstrap;
+- do not store secrets in code, `pyproject.toml`, or a committed `.env`;
+- do not create directories "just in case" if they do not reflect real ownership boundaries.

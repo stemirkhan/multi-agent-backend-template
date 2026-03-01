@@ -7,57 +7,57 @@
 `accepted`
 
 ## Context
-- Phase 5 сейчас умеет автоматически повторять review после blocker-findings.
-- На практике review findings часто требуют не косметических правок, а новых CR, runtime-изменений, миграций и тестов.
-- Без жёсткого лимита remediation loop превращает review в open-ended implementation phase, расходует лимиты модели и затягивает completion на часы.
-- Шаблону нужен предсказуемый stop-condition без потери финального gate через `Gatekeeper`.
+- Phase 5 can currently automatically rerun review after blocker findings.
+- In practice, findings often require non-trivial changes: new CRs, runtime code changes, migrations, and tests.
+- Without a hard limit, the remediation loop turns review into an open-ended implementation phase, burns model budget, and stretches completion into hours.
+- The template needs a predictable stop condition without losing a single final gate through `Gatekeeper`.
 
 ## Decision
-- Ограничить Phase 5 жёстким циклом: один полный review pass, максимум один remediation pass и один targeted re-review.
-- Полный review pass выполняется как и раньше: `security-reviewer`, `consistency-reviewer` и `performance-reviewer` параллельно, затем `Gatekeeper`.
-- После blocker-fix rerun'ить только review-домены, затронутые blocker-findings, и только по изменённым файлам/flow, а не по всему репозиторию.
-- Если после remediation `verify` зелёный и `Gatekeeper` вернул `pass`, Phase 5 сразу закрывается checkpoint commit'ом без новых review-циклов.
-- Если blocker сохраняется после targeted re-review, automation loop останавливается и Orchestrator возвращает unresolved blockers пользователю/следующему владельцу вместо нового автоматического повтора.
+- Bound Phase 5 to a hard loop: one full review pass, at most one remediation pass, and one targeted re-review.
+- The full review pass runs as before: `security-reviewer`, `consistency-reviewer`, and `performance-reviewer` in parallel, then `Gatekeeper`.
+- After fixing blockers, rerun only the review domains affected by blocker findings, and only for changed files/flows, not the entire repository.
+- If after remediation `verify` is green and `Gatekeeper` returns `pass`, close Phase 5 immediately with a checkpoint commit and do not start another review cycle.
+- If a blocker remains after the targeted re-review, stop the automation loop and have Orchestrator return unresolved blockers to the user/next owner instead of automatically repeating again.
 
 ## Alternatives Considered
-1. `unbounded review loop`: максимально автономно, но дорого, непредсказуемо по времени и может бесконечно перерастать в новую реализацию.
-2. `bounded loop with targeted re-review`: выбранный вариант; сохраняет automation, но ограничивает стоимость и время, а rerun держит в рамках blocker diff.
-3. `single review pass with no remediation`: дёшево и просто, но слишком часто оставляет пользователя с несведёнными findings без попытки автоматического исправления.
+1. `unbounded review loop`: maximally autonomous, but expensive, unpredictable in time, and can endlessly drift into new implementation work.
+2. `bounded loop with targeted re-review`: chosen option; keeps automation but bounds cost/time, and keeps reruns scoped to the blocker diff.
+3. `single review pass with no remediation`: cheap and simple, but too often leaves the user with findings and no automated fix attempt.
 
 ## Consequences
 - Positive outcomes:
-  - Phase 5 становится предсказуемой по длительности и стоимости.
-  - Review остаётся focused на blocker diff, а не пересканирует проект целиком.
-  - `Gatekeeper` остаётся единым финальным decision point.
+  - Phase 5 becomes predictable in duration and cost.
+  - Review stays focused on the blocker diff instead of rescanning the full project.
+  - `Gatekeeper` remains the single final decision point.
 - Negative outcomes and debt:
-  - Некоторые blocker'ы потребуют ручного перезапуска workflow после остановки bounded loop.
-  - Нужна дисциплина в Orchestrator prompt'ах, чтобы не расширять targeted rerun обратно до полного review.
+  - Some blockers will require a manual workflow restart after the bounded loop stops.
+  - Orchestrator prompts must remain disciplined to avoid expanding targeted reruns back into full review.
 
 ## Contract Impact
 - API impact:
-  - Публичный API-контракт не меняется.
+  - The public API contract does not change.
 - DB impact:
-  - DB-контракт не меняется.
+  - The DB contract does not change.
 - Worker/tests/monitor impact:
-  - `Orchestrator` и `run.sh` должны навязывать bounded Phase 5 policy.
-  - Review rerun должен быть scoped по blocker diff и affected domains.
+  - `Orchestrator` and `run.sh` must enforce the bounded Phase 5 policy.
+  - Review reruns must be scoped by blocker diff and affected domains.
 
 ## Rollout Plan
-1. `orchestrator`: обновить правила Phase 5 и stop-rules в `.codex/agents/orchestrator.toml`.
-2. `run.sh`: синхронизировать runtime prompt с bounded Phase 5 policy.
+1. `orchestrator`: update Phase 5 rules and stop rules in `.codex/agents/orchestrator.toml`.
+2. `run.sh`: synchronize the runtime prompt with the bounded Phase 5 policy.
 
 ## Rollback Plan
 - Trigger condition:
-  - Bounded loop системно недобирает критичные findings, которые раньше ловились повторными full review pass.
+  - The bounded loop systematically misses critical findings that were previously caught by repeated full review passes.
 - Safe rollback steps:
-  - Вернуть unbounded Phase 5 policy в `orchestrator.toml` и `run.sh`.
-  - Оставить review-роли и `Gatekeeper` без изменений.
+  - Restore the unbounded Phase 5 policy in `orchestrator.toml` and `run.sh`.
+  - Keep the review roles and `Gatekeeper` unchanged.
 
 ## Verification
 - Checks/tests required:
   - `./scripts/verify.sh`
-  - Проверка, что `orchestrator.toml` и `run.sh` одинаково описывают bounded Phase 5 policy.
+  - Check that `orchestrator.toml` and `run.sh` describe the same bounded Phase 5 policy.
 - Expected verify result (`exit code 0`).
 
 ## Open Questions
-- Нужно ли позже добавить явный machine-readable marker для Phase 5 rerun budget, чтобы Monitor мог проверять policy не только по prompt text.
+- Do we want an explicit machine-readable marker for Phase 5 rerun budget so Monitor can validate policy beyond prompt text?

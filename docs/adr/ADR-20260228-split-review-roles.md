@@ -7,56 +7,56 @@
 `accepted`
 
 ## Context
-- В шаблоне был один `Reviewer`, который одновременно проверял security, consistency и performance/data-access риски.
-- Такой reviewer был перегружен по области ответственности и смешивал несколько разных дисциплин review в одном агенте.
-- Phase 5 нужна параллелизация по независимым risk domains без потери единого финального gate.
+- The template used to have a single `Reviewer` role that checked security, consistency, and performance/data-access risks at the same time.
+- That reviewer was overloaded and mixed multiple review disciplines in one agent.
+- Phase 5 needs parallelization across independent risk domains without losing a single final gate.
 
 ## Decision
-- Разделить review слой на `security-reviewer`, `consistency-reviewer`, `performance-reviewer` и `gatekeeper`.
-- Специализированные review-агенты работают read-only и возвращают findings только по своей области.
-- `Gatekeeper` не проводит глубокий самостоятельный аудит, а агрегирует findings, ставит финальный gate и пишет `docs/final-review.md`.
+- Split the review layer into `security-reviewer`, `consistency-reviewer`, `performance-reviewer`, and `gatekeeper`.
+- Specialized review agents run in read-only mode and return findings only for their domain.
+- `Gatekeeper` does not perform a deep independent audit; it aggregates findings, publishes the final gate, and writes `docs/final-review.md`.
 
 ## Alternatives Considered
-1. `single reviewer`: проще orchestration, но одна роль перегружена и хуже параллелится.
-2. `three reviewers + gatekeeper`: выбранный вариант; дает разделение по risk domain и сохраняет единый финальный gate.
-3. `more granular reviewers`: выше точность по областям, но orchestration становится тяжелее и сложнее в сопровождении для шаблона.
+1. `single reviewer`: simpler orchestration, but one role is overloaded and parallelization is poor.
+2. `three reviewers + gatekeeper`: chosen option; separates by risk domain and preserves a single final gate.
+3. `more granular reviewers`: higher precision per area, but orchestration becomes heavier and harder to maintain.
 
 ## Consequences
 - Positive outcomes:
-  - Phase 5 теперь параллелится по независимым областям риска.
-  - Финальное решение по pass/fail остается единым через `Gatekeeper`.
-  - Review prompts становятся уже и понятнее по ownership.
+  - Phase 5 can now be parallelized across independent risk areas.
+  - The final pass/fail decision remains single through `Gatekeeper`.
+  - Review prompts become narrower and clearer by ownership.
 - Negative outcomes and debt:
-  - Увеличивается количество агентных ролей и связанной документации.
-  - Нужна дисциплина orchestration: Gatekeeper должен запускаться только после специализированных review-агентов.
+  - The number of agent roles and related documentation increases.
+  - Orchestration discipline is required: Gatekeeper must run only after specialized review agents.
 
 ## Contract Impact
 - API impact:
-  - Нет изменения публичного API-контракта.
+  - No change to the public API contract.
 - DB impact:
-  - Нет изменения DB-контракта.
+  - No change to the DB contract.
 - Worker/tests/monitor impact:
-  - `Orchestrator` должен запускать review-агентов параллельно и затем отдельно `Gatekeeper`.
-  - `run.sh`, `README`, `TZ_TEMPLATE.md` и подробный guide должны ссылаться на `Gatekeeper`, а не на одиночного `Reviewer`.
+  - `Orchestrator` must run review agents in parallel and then run `Gatekeeper` separately.
+  - `run.sh`, `README`, `TZ_TEMPLATE.md`, and the detailed guide must reference `Gatekeeper`, not a single `Reviewer`.
 
 ## Rollout Plan
-1. `orchestrator`: заменить монолитного reviewer на четыре роли и обновить Phase 5.
-2. `docs/config/verify`: синхронизировать registry, required agents, ownership и final review artifact.
+1. `orchestrator`: replace the monolithic reviewer with four roles and update Phase 5.
+2. `docs/config/verify`: synchronize the registry, required agents, ownership, and the final review artifact.
 
 ## Rollback Plan
 - Trigger condition:
-  - Слишком высокая сложность orchestration или нестабильность финального gate.
+  - Orchestration complexity becomes too high or the final gate becomes unstable.
 - Safe rollback steps:
-  - Вернуть единый `Reviewer`.
-  - Удалить специализированные review-агенты из registry и docs.
-  - Оставить `docs/final-review.md` как единый артефакт финального review.
+  - Revert to a single `Reviewer`.
+  - Remove specialized review agents from the registry and docs.
+  - Keep `docs/final-review.md` as the single final-review artifact.
 
 ## Verification
 - Checks/tests required:
   - `./scripts/verify.sh`
-  - Проверка, что required agents включают три review-агента и `Gatekeeper`.
-  - Проверка, что docs и prompts используют `Gatekeeper` как финальный source of truth.
+  - Check that required agents include three review agents and `Gatekeeper`.
+  - Check that docs and prompts use `Gatekeeper` as the final source of truth.
 - Expected verify result (`exit code 0`).
 
 ## Open Questions
-- Нужно ли в будущем добавлять отдельные артефакты `docs/reviews/*.md` для traceability по каждому reviewer.
+- Do we want separate `docs/reviews/*.md` artifacts in the future for per-reviewer traceability?

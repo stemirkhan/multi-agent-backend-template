@@ -1,18 +1,18 @@
 # Exception Layer
 
-Используй этот reference, когда bootstrap создает общий слой кастомных исключений для FastAPI backend.
+Use this reference when bootstrap creates the shared custom exception layer for a FastAPI backend.
 
-## Цель
+## Goal
 
-Сделать так, чтобы:
+Make sure that:
 
-- `services` и `repositories` не бросали `HTTPException` напрямую;
-- API имел стабильный error contract;
-- Tests могли проверять строковые `error codes`;
-- infrastructure failures не протекали в HTTP-слой без маппинга;
-- публичные ошибки не раскрывали секреты, PII и внутренние технические детали.
+- `services` and `repositories` do not throw `HTTPException` directly;
+- API has a stable error contract;
+- Tests can validate string `error codes`;
+- infrastructure failures do not leak into the HTTP layer without mapping;
+- public errors do not expose secrets, PII, or internal technical details.
 
-## Минимальный набор файлов
+## Minimum File Set
 
 ```text
 app/errors/
@@ -23,7 +23,7 @@ app/errors/
 app/api/error_handlers.py
 ```
 
-## Рекомендуемый минимальный набор исключений
+## Recommended Minimum Exception Set
 
 - `AppError`
 - `ValidationError`
@@ -33,20 +33,20 @@ app/api/error_handlers.py
 - `InfrastructureError`
 - `ExternalServiceError`
 
-Не нужно строить сложную иерархию без явной пользы.
+Do not build a complex hierarchy without a clear benefit.
 
-## Правила слоя
+## Layer Rules
 
-- Все прикладные ошибки наследуются от `AppError`.
-- У каждого app-level error есть `code`, `message`, `details`.
-- `HTTPException` допустим только на внешнем API-краю, если действительно нужен direct FastAPI case.
-- Внутренние слои предпочитают `AppError` и его подтипы.
-- У каждого публично наблюдаемого исключения должен быть стабильный строковый `code`.
-- Технические детали и `cause` остаются во внутренних логах/trace, а не в пользовательском `message`.
-- API handlers должны маппить app-level errors в единый response shape.
-- Логирование ошибки выполняется один раз на границе приложения.
+- All application errors inherit from `AppError`.
+- Every app-level error has `code`, `message`, `details`.
+- `HTTPException` is acceptable only at the outer API edge when a direct FastAPI case is actually needed.
+- Internal layers prefer `AppError` and its subtypes.
+- Every publicly observable exception must have a stable string `code`.
+- Technical details and `cause` stay in internal logs/traces, not in the user-facing `message`.
+- API handlers must map app-level errors into one unified response shape.
+- Error logging happens once at the application boundary.
 
-## Рекомендуемый response shape
+## Recommended Response Shape
 
 ```json
 {
@@ -58,19 +58,19 @@ app/api/error_handlers.py
 }
 ```
 
-## Минимальный mapping
+## Minimum Mapping
 
 - `ValidationError` -> `400`
 - `AccessDeniedError` -> `403`
 - `NotFoundError` -> `404`
 - `ConflictError` -> `409`
 - `InfrastructureError` / `ExternalServiceError` -> `503`
-- unexpected error -> `500` через generic handler без утечки внутренних деталей
+- unexpected error -> `500` via a generic handler without leaking internal details
 
-## Чего избегать
+## What To Avoid
 
-- кидать ORM/driver exceptions прямо наружу;
-- кидать секреты, DSN, токены или PII в `message` и `details`;
-- смешивать domain errors и transport concerns в одном классе;
-- делать error codes нестабильными или вычисляемыми от текста ошибки;
-- строить bootstrap на одном `Exception` catch-all без app-specific taxonomy.
+- throwing ORM/driver exceptions directly outward;
+- putting secrets, DSNs, tokens, or PII into `message` and `details`;
+- mixing domain errors and transport concerns in the same class;
+- making error codes unstable or derived from error text;
+- building bootstrap around one `Exception` catch-all without app-specific taxonomy.

@@ -3,8 +3,8 @@ Status: template
 Owner: DB
 Phase: 2
 
-Этот файл обязателен для Phase 2.
-Перед закрытием фазы опиши реальные schema-level решения и обнови `Status:`.
+This file is required for Phase 2.
+Before closing the phase, document real schema-level decisions and update `Status:`.
 
 ## 1. Entities And Ownership
 - Entity:

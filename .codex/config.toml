@@ -6,31 +6,31 @@ max_threads = 12
 max_depth = 6
 
 [agents.orchestrator]
-description = "Оркестратор: управляет фазами, собирает результаты, ловит конфликты."
+description = "Orchestrator: manages phases, collects results, resolves conflicts."
 config_file = "agents/orchestrator.toml"
 
 [agents.architect]
-description = "Архитектура: NFR, границы модулей, решения по очередям/кэшу."
+description = "Architecture: NFRs, module boundaries, queue/cache decisions."
 config_file = "agents/architect.toml"
 
 [agents.api]
-description = "API: контракты, OpenAPI, схемы, ошибки, пагинация, идемпотентность."
+description = "API: contracts, OpenAPI, schemas, errors, pagination, idempotency."
 config_file = "agents/api.toml"
 
 [agents.db]
-description = "DB: схема, миграции Alembic, индексы, сиды."
+description = "DB: schema, Alembic migrations, indexes, seeds."
 config_file = "agents/db.toml"
 
 [agents.devenv]
-description = "Dev Environment: поднимает локальные сервисы, API и dev entrypoint'ы."
+description = "Dev Environment: boots local services, API, and dev entrypoints."
 config_file = "agents/devenv.toml"
 
 [agents.worker]
-description = "Implementation: пишет код фич строго по контрактам API/DB/Architect."
+description = "Implementation: writes feature code strictly against API/DB/Architect contracts."
 config_file = "agents/worker.toml"
 
 [agents.tests]
-description = "Tests: unit+integration+contract, фикстуры, матрица доступов."
+description = "Tests: unit+integration+contract, fixtures, access matrix."
 config_file = "agents/tests.toml"
 
 [agents.security-reviewer]
@@ -46,13 +46,13 @@ description = "Performance Review: N+1, indexes, heavy sorts, query bottlenecks.
 config_file = "agents/performance-reviewer.toml"
 
 [agents.gatekeeper]
-description = "Gatekeeper: агрегирует review-findings и ставит финальный gate."
+description = "Gatekeeper: aggregates review findings and publishes the final gate."
 config_file = "agents/gatekeeper.toml"
 
 [agents.explorer]
-description = "Explorer: read-only, читает код/ТЗ, делает карту проекта."
+description = "Explorer: read-only, reads code/specs, maps the project."
 config_file = "agents/explorer.toml"
 
 [agents.monitor]
-description = "Monitor: read-only, запускает команды и суммаризирует вывод."
+description = "Monitor: read-only, runs commands and summarizes output."
 config_file = "agents/monitor.toml"

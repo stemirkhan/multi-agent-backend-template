@@ -1,22 +1,22 @@
 # Settings And Secrets
 
-Используй этот reference, когда bootstrap создает config layer и локальный dev bootstrap.
+Use this reference when bootstrap creates the config layer and local dev bootstrap.
 
 ## Hard defaults
 
-- `.env` не коммитится.
-- В репозитории хранится только `.env.example`.
-- Все секреты и DSN читаются через env vars.
-- Для загрузки настроек используется `pydantic-settings`.
-- В локальной среде и тестах используются синтетические данные, а не реальные PII.
+- `.env` is not committed.
+- The repository stores only `.env.example`.
+- All secrets and DSNs are read through env vars.
+- `pydantic-settings` is used to load settings.
+- Local environments and tests use synthetic data, not real PII.
 
-## Минимальный output
+## Minimum Output
 
-- `app/core/config.py` или эквивалентный settings module.
-- `.env.example` с обязательными переменными.
-- `.gitignore`, который исключает `.env`, но не исключает `.env.example`.
+- `app/core/config.py` or an equivalent settings module.
+- `.env.example` with required variables.
+- `.gitignore` that excludes `.env`, but does not exclude `.env.example`.
 
-## Что должно быть в `.env.example`
+## What `.env.example` Should Contain
 
 - `APP_ENV`
 - `APP_HOST`
@@ -26,10 +26,10 @@
 - `REDIS_DSN`
 - `JWT_SECRET`
 
-Добавляй только placeholder values для локальной разработки.
+Use placeholder values only for local development.
 
-## Чего не делать
+## What Not To Do
 
-- не хранить секреты в коде, compose-файлах или tracked `.env`;
-- не делать runtime зависимым от невалидированных переменных окружения;
-- не использовать реальные пользовательские данные для локального bootstrap.
+- do not store secrets in code, compose files, or a tracked `.env`;
+- do not make runtime depend on unvalidated environment variables;
+- do not use real user data for local bootstrap.

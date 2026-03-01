@@ -1,25 +1,25 @@
 # Service Repository Boundaries
 
-Используй этот reference, когда bootstrap создает foundation для `services/` и `repositories/`.
+Use this reference when bootstrap creates the foundation for `services/` and `repositories/`.
 
 ## Hard defaults
 
-- Бизнес-логика живет в `Service`.
-- Репозиторий занимается только доступом к данным.
-- Репозиторий не управляет транзакциями и не делает `commit` / `rollback`.
-- Транзакционной границей владеет сервис или `UoW`.
-- Классы сервисов оканчиваются на `Service`.
-- Классы репозиториев оканчиваются на `Repository`.
+- Business logic lives in `Service`.
+- A repository handles data access only.
+- A repository does not control transactions and does not do `commit` / `rollback`.
+- The service or `UoW` owns the transaction boundary.
+- Service classes end with `Service`.
+- Repository classes end with `Repository`.
 
 ## Typed inputs
 
-- Публичные методы сервисов должны принимать типизированные входы.
-- Для команд/создания/обновления предпочитай DTO или эквивалентные typed models.
-- Репозитории не должны принимать сырые неструктурированные `dict`, если можно использовать typed inputs.
+- Public service methods should accept typed inputs.
+- For commands/create/update, prefer DTOs or equivalent typed models.
+- Repositories should not accept raw unstructured `dict` when typed inputs can be used.
 
-## Чего избегать
+## What To Avoid
 
-- бизнес-правила в репозитории;
-- прямой `HTTPException` из сервиса;
-- смешивание orchestration и data access в одном классе;
-- мертвый код и неиспользуемые публичные методы.
+- business rules in the repository;
+- direct `HTTPException` from a service;
+- mixing orchestration and data access in one class;
+- dead code and unused public methods.

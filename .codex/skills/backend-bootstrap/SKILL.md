@@ -11,74 +11,74 @@ Create a minimal, runnable backend foundation for this template's FastAPI stack.
 
 ## Use This Skill When
 
-- репозиторий ещё не имеет понятного runtime skeleton для `FastAPI`;
-- нет ASGI entrypoint, базового layout для `api`, `services`, `repositories`, `db`, `di`, `messaging`, `tests`;
-- нет reproducible dev entrypoint'ов и без них Devenv не может нормально поднять среду;
-- отсутствует слой кастомных исключений и сервисный код иначе начнет бросать `HTTPException` или сырые infra-ошибки;
-- Orchestrator понимает, что перед feature implementation сначала нужен foundation layer.
+- the repository still has no clear runtime skeleton for `FastAPI`;
+- there is no ASGI entrypoint, no base layout for `api`, `services`, `repositories`, `db`, `di`, `messaging`, `tests`;
+- there are no reproducible dev entrypoints, so Devenv cannot bring up the environment cleanly;
+- the custom exception layer is missing, and service code would otherwise start throwing `HTTPException` or raw infra errors;
+- Orchestrator determines that a foundation layer is needed before feature implementation.
 
 ## Do Not Use This Skill When
 
-- в репозитории уже есть coherent skeleton и нужен только feature-level implementation;
-- задача ограничена контрактами API/DB/ADR и кодовый foundation не является блокером;
-- для продолжения сначала нужен Change Request или архитектурное решение, а не scaffold;
-- пользователь просит только review или точечный фикс.
+- the repository already has a coherent skeleton and only needs feature-level implementation;
+- the task is limited to API/DB/ADR contracts and code foundation is not the blocker;
+- the next step should be a Change Request or an architecture decision, not scaffolding;
+- the user only asked for review or a narrow fix.
 
 ## Workflow
 
 1. Confirm trigger and preconditions
-- Прочитай `project-stack.toml`.
-- Продолжай только если профиль совместим с этим шаблоном (`framework = "fastapi"`).
-- Быстро оцени текущее дерево проекта. Если runnable skeleton уже есть, остановись и коротко верни `bootstrap not required`.
-- Если вместо bootstrap сначала нужен CR/ADR, эскалируй это и не подменяй архитектурное решение генерацией структуры.
+- Read `project-stack.toml`.
+- Continue only if the profile is compatible with this template (`framework = "fastapi"`).
+- Quickly inspect the current project tree. If a runnable skeleton already exists, stop and briefly return `bootstrap not required`.
+- If a CR/ADR is needed before bootstrap, escalate that and do not replace an architecture decision with generated structure.
 
 2. Load only the references you need
-- Для целевой структуры и минимальных файлов используй `references/project-layout.md`.
-- Для слоя кастомных исключений и global handlers используй `references/exception-layer.md`.
-- Для env/settings и локальной безопасности используй `references/settings-and-secrets.md`.
-- Для границ между сервисами и репозиториями используй `references/service-repository-boundaries.md`.
-- Для базовых formatter/linter/type-check defaults используй `references/code-quality.md`.
-- Перед завершением сверься с `references/bootstrap-checklist.md`.
+- For target structure and minimal files, use `references/project-layout.md`.
+- For the custom exception layer and global handlers, use `references/exception-layer.md`.
+- For env/settings and local security, use `references/settings-and-secrets.md`.
+- For service/repository boundaries, use `references/service-repository-boundaries.md`.
+- For base formatter/linter/type-check defaults, use `references/code-quality.md`.
+- Before finishing, cross-check against `references/bootstrap-checklist.md`.
 
 3. Bootstrap the minimal runtime structure
-- Создай или нормализуй layout для `app`, `api`, `core`, `di`, `db`, `services`, `repositories`, `messaging`, `tests`, `scripts`.
-- Добавь ASGI entrypoint, router registration, settings/config skeleton, db session bootstrap, DI wiring, messaging/broker placeholder.
-- Если foundation отсутствует полностью, создай `.env.example`, `.gitignore`, минимальный tool configuration skeleton и слой settings на `pydantic-settings`.
-- Делай extension points, а не фальшивую бизнес-логику.
+- Create or normalize the layout for `app`, `api`, `core`, `di`, `db`, `services`, `repositories`, `messaging`, `tests`, `scripts`.
+- Add the ASGI entrypoint, router registration, settings/config skeleton, DB session bootstrap, DI wiring, and messaging/broker placeholder.
+- If foundation is entirely missing, create `.env.example`, `.gitignore`, a minimal tool-configuration skeleton, and a `pydantic-settings`-based settings layer.
+- Build extension points, not fake business logic.
 
 4. Bootstrap cross-cutting layers
-- Создай отдельный слой кастомных исключений и единый API error handler surface.
-- Предпочитай app-level exceptions вместо прямого `HTTPException` в `services` и `repositories`.
-- Добавь место для стабильных `error codes`, чтобы API и Tests могли опираться на один контракт.
+- Create a separate custom exception layer and one unified API error-handler surface.
+- Prefer app-level exceptions instead of direct `HTTPException` in `services` and `repositories`.
+- Add a place for stable `error codes` so API and Tests can rely on one contract.
 
 5. Bootstrap dev and test entrypoints
-- Убедись, что Devenv может воспроизводимо поднимать стек: используй существующие entrypoint'ы проекта или создай минимальные `dev-up` / `dev-api` entrypoint'ы.
-- Сделай безопасный локальный bootstrap: только env vars, без секретов в коде и без коммита `.env`.
-- Создай тестовый skeleton, достаточный для smoke/unit/integration base, но не имитируй покрытие несуществующих фич.
+- Make sure Devenv can reproducibly bring up the stack: use existing project entrypoints or create minimal `dev-up` / `dev-api` entrypoints.
+- Create a safe local bootstrap: env vars only, no secrets in code, and no committed `.env`.
+- Create a test skeleton sufficient for smoke/unit/integration base, but do not pretend to cover nonexistent features.
 
 6. Sync docs and handoff
-- Если startup flow изменился, обнови `docs/dev-environment.md`.
-- Если bootstrap вносит важные ограничения в runtime structure, зафиксируй это для Architect/Orchestrator.
-- Верни список созданных файлов, блокеры и следующего владельца задачи.
+- If the startup flow changed, update `docs/dev-environment.md`.
+- If bootstrap introduces important constraints in runtime structure, record them for Architect/Orchestrator.
+- Return the list of created files, blockers, and the next owner.
 
 ## Output Rules
 
-- Следуй `project-stack.toml`; не вводи другой stack или layout без явной причины.
-- Создавай runnable scaffold, но не выдумывай предметную модель, endpoint'ы, схему БД или доменные правила.
-- Если нужна заготовка, делай её минимальной и расширяемой.
-- При bootstrap слоя ошибок держи одну понятную taxonomy, а не 20 мелких исключений без пользы.
-- Внутренние слои не должны бросать `HTTPException` и сырые library exceptions наружу; используй app-level errors.
-- Сервисы владеют бизнес-логикой и транзакцией/UoW; репозитории остаются слоем доступа к данным без `commit`/`rollback`.
-- Публичные сервисы, репозитории, DTO и настройки должны быть типизированы.
-- Не подменяй собой `API`, `DB` или `Architect`.
+- Follow `project-stack.toml`; do not introduce another stack or layout without an explicit reason.
+- Create runnable scaffolding, but do not invent a domain model, endpoints, DB schema, or business rules.
+- If a stub is needed, make it minimal and extensible.
+- For the error layer, keep one clear taxonomy, not 20 tiny exceptions with no value.
+- Internal layers must not throw `HTTPException` or raw library exceptions outward; use app-level errors.
+- Services own business logic and transaction/UoW control; repositories remain a data-access layer without `commit`/`rollback`.
+- Public services, repositories, DTOs, and settings must be typed.
+- Do not substitute yourself for `API`, `DB`, or `Architect`.
 
 ## Quality Checklist
 
-- Есть ли runnable ASGI entrypoint?
-- Есть ли понятные места для `api`, `services`, `repositories`, `db`, `di`, `messaging`, `tests`?
-- Создан ли отдельный слой кастомных исключений и global handler mapping?
-- Есть ли `.env.example`, `.gitignore` и settings layer на `pydantic-settings`?
-- Соблюдена ли граница `Service`/`Repository` и ownership транзакций?
-- Есть ли минимальные code-quality defaults для formatter/linter/type hints?
-- Может ли Devenv воспроизводимо поднять API после bootstrap?
-- Может ли Worker продолжать feature work без повторного изобретения foundation?
+- Is there a runnable ASGI entrypoint?
+- Are there clear places for `api`, `services`, `repositories`, `db`, `di`, `messaging`, `tests`?
+- Is there a separate custom exception layer and global handler mapping?
+- Are `.env.example`, `.gitignore`, and a `pydantic-settings` settings layer present?
+- Is the `Service`/`Repository` boundary respected, and is transaction ownership clear?
+- Are there minimal code-quality defaults for formatter/linter/type hints?
+- Can Devenv reproducibly start the API after bootstrap?
+- Can Worker continue feature work without reinventing the foundation?

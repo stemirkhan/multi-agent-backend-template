@@ -7,55 +7,55 @@
 `accepted`
 
 ## Context
-- Шаблон уже зафиксирован под FastAPI-стек, но до этого технологические ожидания были разбросаны по README, ТЗ, prompt'ам и agent instructions.
-- Из-за этого агентам приходилось повторно выводить framework/runtime/tooling из текста, а не читать единый machine-readable контракт.
-- Для Devenv, Worker, Tests и Monitor особенно важны точные поля по runtime, DI, messaging, контейнерам и verify entrypoint'у.
+- The template is already fixed to a FastAPI stack, but the technology expectations were previously scattered across README, spec, prompts, and agent instructions.
+- As a result, agents had to infer framework/runtime/tooling from prose instead of reading one machine-readable contract.
+- For Devenv, Worker, Tests, and Monitor, accurate fields for runtime, DI, messaging, containers, and the verify entrypoint are especially important.
 
 ## Decision
-- Добавить в корень репозитория `project-stack.toml` как machine-readable stack profile проекта.
-- Сделать `project-stack.toml` source of truth для `language`, `framework`, `orm`, `migration_tool`, `test_runner`, `di_library`, `message_framework`, `message_broker`, `message_transport`, `cache`, `db`, `container_runtime`, `compose_tool`, `api_runner`, `api_entrypoint`, `verify_entrypoint`.
-- Обязать Orchestrator и runtime-oriented агентов сначала читать `project-stack.toml`, а уже потом использовать README/TZ как поясняющий контекст.
+- Add `project-stack.toml` at the repository root as the project's machine-readable stack profile.
+- Make `project-stack.toml` the source of truth for `language`, `framework`, `orm`, `migration_tool`, `test_runner`, `di_library`, `message_framework`, `message_broker`, `message_transport`, `cache`, `db`, `container_runtime`, `compose_tool`, `api_runner`, `api_entrypoint`, `verify_entrypoint`.
+- Require Orchestrator and runtime-oriented agents to read `project-stack.toml` first, and only then use README/spec as explanatory context.
 
 ## Alternatives Considered
-1. `STACK.md`: проще читать человеку, но хуже для verify и автоматизированного использования агентами.
-2. `project-stack.toml`: выбранный вариант; его удобно парсить, валидировать и использовать как source of truth.
-3. `hardcoded prompts only`: меньше файлов, но стек остается размазанным и хуже поддерживается.
+1. `STACK.md`: easier for humans to read, but worse for verify and automated agent usage.
+2. `project-stack.toml`: chosen option; easy to parse, validate, and use as a source of truth.
+3. `hardcoded prompts only`: fewer files, but the stack remains scattered and harder to maintain.
 
 ## Consequences
 - Positive outcomes:
-  - Агенты получают единый machine-readable контракт по стеку и entrypoint'ам.
-  - `verify.sh` может валидировать наличие и базовую корректность stack profile.
-  - README и ТЗ остаются человекочитаемыми, но перестают быть единственным источником стека.
+  - Agents get one machine-readable contract for the stack and entrypoints.
+  - `verify.sh` can validate presence and basic correctness of the stack profile.
+  - README and the spec remain human-readable, but stop being the only stack source.
 - Negative outcomes and debt:
-  - `project-stack.toml` придется поддерживать в актуальном состоянии вручную.
-  - При расширении шаблона под другие стеки придется обновлять schema и agent instructions.
+  - `project-stack.toml` must be kept up to date manually.
+  - If the template expands to other stacks, the schema and agent instructions must be updated.
 
 ## Contract Impact
 - API impact:
-  - API Agent перестает гадать framework/runtime assumptions и читает их из `project-stack.toml`.
+  - The API Agent stops guessing framework/runtime assumptions and reads them from `project-stack.toml`.
 - DB impact:
-  - DB Agent получает явный профиль ORM/migration/db/cache assumptions.
+  - The DB Agent gets an explicit profile for ORM/migration/db/cache assumptions.
 - Worker/tests/monitor impact:
-  - Devenv, Worker, Tests и Monitor опираются на stack profile для runtime, DI, messaging, контейнеров и verify entrypoint'а.
+  - Devenv, Worker, Tests, and Monitor rely on the stack profile for runtime, DI, messaging, containers, and the verify entrypoint.
 
 ## Rollout Plan
-1. `template`: добавить `project-stack.toml` с дефолтным FastAPI profile.
-2. `orchestrator/docs/verify`: синхронизировать prompt'ы, agent instructions и template checks.
+1. `template`: add `project-stack.toml` with the default FastAPI profile.
+2. `orchestrator/docs/verify`: synchronize prompts, agent instructions, and template checks.
 
 ## Rollback Plan
 - Trigger condition:
-  - Stack profile не используется агентами на практике или создает больше drift, чем пользы.
+  - The stack profile is not used by agents in practice, or it creates more drift than value.
 - Safe rollback steps:
-  - Удалить `project-stack.toml`.
-  - Вернуть textual stack assumptions как единственный источник.
-  - Убрать stack profile из verify и agent instructions.
+  - Remove `project-stack.toml`.
+  - Revert to textual stack assumptions as the only source.
+  - Remove the stack profile from verify and agent instructions.
 
 ## Verification
 - Checks/tests required:
   - `./scripts/verify.sh`
-  - Проверка, что `project-stack.toml` существует, парсится и содержит обязательные поля.
-  - Проверка, что docs/prompt'ы ссылаются на stack profile как на source of truth.
+  - Check that `project-stack.toml` exists, parses, and contains required fields.
+  - Check that docs/prompts reference the stack profile as the source of truth.
 - Expected verify result (`exit code 0`).
 
 ## Open Questions
-- Нужна ли в будущем schema-версия с nested sections вместо flat keys.
+- Do we need a future schema version with nested sections instead of flat keys?

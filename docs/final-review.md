@@ -3,8 +3,8 @@ Status: template
 Owner: Gatekeeper
 Phase: 5
 
-Этот файл обязателен для Phase 5.
-Перед закрытием фазы зафиксируй итоговый gate после агрегации review-findings и обнови `Status:`.
+This file is required for Phase 5.
+Before closing the phase, record the final gate decision after aggregating review findings and update `Status:`.
 
 ## 1. Review Scope
 - Commit / diff:

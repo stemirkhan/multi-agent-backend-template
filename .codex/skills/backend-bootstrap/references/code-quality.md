@@ -1,23 +1,23 @@
 # Code Quality Defaults
 
-Используй этот reference, когда bootstrap создает базовый toolchain проекта.
+Use this reference when bootstrap creates the project's base toolchain.
 
 ## Hard defaults
 
-- В проекте должен быть автоформатер.
-- В проекте должен быть линтер.
-- Публичные интерфейсы должны иметь type hints.
-- Запрещены wildcard imports и очевидный мертвый код.
+- The project must have an autoformatter.
+- The project must have a linter.
+- Public interfaces must have type hints.
+- Wildcard imports and obvious dead code are forbidden.
 
-## Предпочтительный минимальный набор
+## Preferred Minimum Set
 
 - formatter: `ruff format`
 - linter: `ruff`
 - tests: `pytest`
-- type checking: `mypy` или `pyright`
+- type checking: `mypy` or `pyright`
 
-## Что bootstrap должен сделать минимум
+## Minimum Bootstrap Responsibilities
 
-- если tool configuration отсутствует, создать минимальную конфигурацию в `pyproject.toml` или совместимом файле;
-- не вводить избыточно строгий режим, который сразу ломает пустой skeleton;
-- сделать так, чтобы следующий итеративный шаг мог запускать format/lint/test без полного переписывания foundation.
+- if tool configuration is missing, create minimal configuration in `pyproject.toml` or a compatible file;
+- do not introduce an overly strict mode that immediately breaks an empty skeleton;
+- make sure the next iterative step can run format/lint/test without rewriting the entire foundation.

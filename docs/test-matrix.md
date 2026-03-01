@@ -3,8 +3,8 @@ Status: template
 Owner: Tests
 Phase: 4
 
-Этот файл обязателен для Phase 4.
-Перед закрытием фазы зафиксируй реальное покрытие и обнови `Status:`.
+This file is required for Phase 4.
+Before closing the phase, document real coverage and update `Status:`.
 
 ## 1. Unit Tests
 - Scenario:

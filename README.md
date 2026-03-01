@@ -1,26 +1,26 @@
 # Multi-Agent FastAPI Backend Workflow Template
 
-Этот README описывает процесс работы multi-agent команды над FastAPI backend-проектом.  
-Шаблон зафиксирован под FastAPI stack и не рассчитан на другие web-framework'и без отдельной адаптации.
+This README describes how a multi-agent team can work on a FastAPI backend project using this template.
+The template is fixed to a FastAPI stack and is not intended for other web frameworks without explicit adaptation.
 
-Подробный разбор того, как работает шаблон "от и до": `docs/TEMPLATE_DETAILED_GUIDE.md`
-Machine-readable stack profile проекта: `project-stack.toml`
+Detailed end-to-end explanation: `docs/TEMPLATE_DETAILED_GUIDE.md`
+Machine-readable stack profile: `project-stack.toml`
 
-## Цель
+## Goal
 
-Собрать backend, в котором:
+Build a backend where:
 
-- архитектурные решения зафиксированы и согласованы;
-- API и БД совместимы и стабильны;
-- тесты и verify-проходы зелёные;
-- нет blocker-рисков по безопасности и корректности.
+- architectural decisions are locked and agreed;
+- API and DB are compatible and stable;
+- tests and verify runs are green;
+- there are no blocker risks in security or correctness.
 
-## Как создать новый backend из шаблона
+## Create A New Backend From This Template
 
-1. Скопировать шаблон в новый репозиторий.
-2. Проверить и при необходимости обновить `project-stack.toml` под реальный стек проекта.
-3. Заполнить `TZ_TEMPLATE.md` или создать отдельный `backend_tz_from_template.md` на его основе.
-4. Добавить или уточнить reproducible entrypoint'ы проекта, если они уже известны:
+1. Copy this template into a new repository.
+2. Review and update `project-stack.toml` to match the real project stack.
+3. Fill in `TZ_TEMPLATE.md` or create `backend_tz_from_template.md` based on it.
+4. Add or clarify reproducible project entrypoints if they are already known:
    - `./scripts/dev-bootstrap.sh`
    - `./scripts/dev-up.sh`
    - `./scripts/dev-api.sh`
@@ -28,29 +28,29 @@ Machine-readable stack profile проекта: `project-stack.toml`
    - `make dev-up`
    - `make run-api`
    - `make verify`
-5. Проверить сам шаблон:
+5. Verify the template:
 
 ```bash
 ./run.sh verify
 ```
 
-6. Запустить первый multi-agent прогон:
+6. Run the first multi-agent pass:
 
 ```bash
 ./run.sh codex
 ```
 
-или:
+or:
 
 ```bash
 ./run.sh codex backend_tz_from_template.md
 ```
 
-Если в новом репозитории ещё нет runnable backend skeleton, Orchestrator должен направить Worker на skill `backend-bootstrap` до начала feature-level реализации.
+If the new repository does not yet have a runnable backend skeleton, Orchestrator should route Worker to the `backend-bootstrap` skill before feature-level implementation begins.
 
-## Быстрый старт с GitHub
+## Quick Start With GitHub
 
-### Вариант A. Новый проект в пустой папке
+### Option A. New project in an empty folder
 
 ```bash
 git clone https://github.com/stemirkhan/multi-agent-backend-template.git my-backend
@@ -60,21 +60,21 @@ cp TZ_TEMPLATE.md backend_tz_from_template.md
 ./run.sh codex backend_tz_from_template.md
 ```
 
-Если нужен менее интерактивный запуск:
+If you want a less interactive run:
 
 ```bash
 ./run.sh codex-auto backend_tz_from_template.md
 ```
 
-Если проект запускается на изолированной dev-машине и не хочется останавливаться на approvals/sandbox:
+If you are on an isolated dev machine and do not want to stop on approvals/sandbox:
 
 ```bash
 ./run.sh codex-danger backend_tz_from_template.md
 ```
 
-### Вариант B. Уже есть backend-проект и нужно влить в него шаблон
+### Option B. Merge the template into an existing backend repo
 
-Если папка проекта уже не пустая, `git clone ... .` не подойдет. Нормальный путь:
+If your project directory is not empty, `git clone ... .` is not a good approach. A safer path is:
 
 ```bash
 cd /path/to/existing-backend
@@ -86,33 +86,32 @@ chmod +x run.sh scripts/verify.sh scripts/dev-bootstrap.sh
 ./run.sh codex backend_tz_from_template.md
 ```
 
-Важно:
+Important:
 
-- не переносить `.git` из шаблона в существующий проект;
-- сохранить свой origin и свою git-историю проекта;
-- проверить `project-stack.toml` и ТЗ перед первым прогоном.
+- do not move the template `.git` into your existing project;
+- keep your own origin and git history;
+- review `project-stack.toml` and the spec before the first run.
 
-## Что должен заполнить пользователь
+## What the user must fill in
 
-До первого прогона пользователь должен явно заполнить хотя бы эти входы:
+Before the first run, the user must explicitly provide at least these inputs:
 
-- `project-stack.toml`: реальный stack profile, entrypoint'ы API и verify, container runtime, broker/cache/DB.
-- `TZ_TEMPLATE.md` или отдельный `backend_tz_from_template.md`: цель MVP, FR/NFR, API/DB assumptions, RBAC, acceptance checklist.
+- `project-stack.toml`: real stack profile, API and verify entrypoints, container runtime, broker/cache/DB.
+- `TZ_TEMPLATE.md` or `backend_tz_from_template.md`: MVP goal, FR/NFR, API/DB assumptions, RBAC, acceptance checklist.
 
-Желательно подготовить заранее:
+Nice to have in advance:
 
-- `README.md` разделы с project-specific командами запуска и проверки, если они отличаются от шаблонных.
-- `./scripts/dev-bootstrap.sh`, `./scripts/dev-up.sh` и `./scripts/dev-api.sh` либо `make`/`task` entrypoint'ы, если локальный bootstrap/startup flow уже известен.
-- `.env.example`, если проекту уже нужны локальные настройки и секретные переменные.
+- a project-specific `README.md` section with run/test commands if they differ from the template defaults;
+- `./scripts/dev-bootstrap.sh`, `./scripts/dev-up.sh`, `./scripts/dev-api.sh` or `make`/`task` entrypoints if the local bootstrap/startup flow is already known;
+- `.env.example` if the project already needs local settings and secret variables.
 
-Не нужно вручную заполнять фазовые артефакты `docs/*.md` и `openapi.yaml` как готовый результат до прогона.
-Они уже существуют как template artifacts и должны быть обновлены агентами по ходу workflow.
+Do not pre-fill phase artifacts in `docs/*.md` and `openapi.yaml` before running. They already exist as template artifacts and are expected to be updated by agents during the workflow.
 
-## Stack Assumptions
+## Stack assumptions
 
-Source of truth для стека и runtime tooling: `project-stack.toml`
+Source of truth for stack and runtime tooling: `project-stack.toml`
 
-Профиль по умолчанию:
+Default profile:
 
 - Language/framework: `python` + `fastapi`
 - Schemas/validation: `Pydantic`
@@ -124,158 +123,158 @@ Source of truth для стека и runtime tooling: `project-stack.toml`
 - API runtime: `uvicorn` -> `app.main:app`
 - Verify entrypoint: `./scripts/verify.sh`
 
-`project-stack.toml` не является lockfile версий. Это machine-readable профиль технологического выбора и entrypoint'ов, который агенты должны читать до любых предположений о стеке.
+`project-stack.toml` is not a version lockfile. It is a machine-readable profile of technology choices and entrypoints that agents must read before making assumptions.
 
-## Встроенные Skills
+## Built-in Skills
 
-- `architecture-decision-record`: фиксирует архитектурные решения и ADR.
-- `change-request-writer`: оформляет контрактные change request'ы между ролями.
-- `db-design-checklist`: прогоняет схему и миграции через checklist по ограничениям, индексам и safety.
-- `backend-bootstrap`: создает initial FastAPI backend skeleton, включая runtime structure, dev entrypoint'ы, тестовый foundation и слой кастомных исключений.
+- `architecture-decision-record`: records architecture decisions as ADRs.
+- `change-request-writer`: writes contract change requests between roles.
+- `db-design-checklist`: runs schema/migration decisions through a strict checklist.
+- `backend-bootstrap`: creates an initial FastAPI backend skeleton (runtime structure, dev entrypoints, test foundation, custom exception layer).
 
-## Hard Defaults Шаблона
+## Template Hard Defaults
 
-- Единый слой ошибок: app-level exceptions с `code`, `message`, `details`; API не раскрывает secrets, PII и внутренние технические детали.
-- Локальная конфигурация через env: `.env` не коммитится, `.env.example` хранится в репозитории, настройки читаются через `pydantic-settings`.
-- Граница `Service` / `Repository`: сервисы владеют бизнес-логикой и транзакцией/UoW, репозитории не делают `commit` / `rollback` и не содержат бизнес-логики.
-- Именование: классы сервисов оканчиваются на `Service`, репозиториев — на `Repository`.
-- Базовые code-quality expectations: formatter, linter и type hints для публичных интерфейсов.
+- Unified error layer: app-level exceptions with `code`, `message`, `details`; API must not expose secrets, PII, or internal technical details.
+- Local configuration via env: `.env` is not committed, `.env.example` is committed, settings are read via `pydantic-settings`.
+- `Service` / `Repository` boundary: services own business logic and transaction/UoW; repositories do not do `commit` / `rollback` and do not contain business logic.
+- Naming: service classes end with `Service`, repositories end with `Repository`.
+- Basic code quality: formatter, linter, and type hints for public interfaces.
 
-## Роли агентов
+## Agent Roles
 
 ## Orchestrator
 
-- Управляет фазами и порядком выполнения.
-- Не пишет прод-код и не меняет схему БД напрямую.
-- Разрешает конфликты между контрактами.
+- Manages phases and execution order.
+- Does not write production code and does not change the DB schema directly.
+- Resolves conflicts between contracts.
 
 ## Architect
 
-- Фиксирует архитектурные решения (очереди, кэш, границы безопасности, модель консистентности).
-- Пишет архитектурный контракт в `docs/architecture.md` и ADR в `docs/adr/ADR-*.md`.
-- Эскалирует изменения контрактов через Change Request.
+- Locks architecture decisions (queues, cache, security boundaries, consistency model).
+- Writes the architecture contract in `docs/architecture.md` and ADRs in `docs/adr/ADR-*.md`.
+- Escalates contract changes through Change Requests.
 
 ## DB
 
-- Владеет схемой данных, миграциями и индексами.
-- Ведёт журнал schema-level решений в `docs/schema-decisions.md`.
-- Отвечает за ограничения, целостность и миграционную безопасность.
-- Не меняет API-контракты без Change Request.
+- Owns the data schema, migrations, and indexes.
+- Maintains schema-level decisions in `docs/schema-decisions.md`.
+- Owns constraints, integrity, and migration safety.
+- Does not change API contracts without a Change Request.
 
 ## API
 
-- Владеет публичным FastAPI-контрактом в `openapi.yaml` (OpenAPI, схемы запрос/ответ, ошибки, идемпотентность).
-- Проверяет совместимость с БД и архитектурой.
-- Не меняет БД напрямую.
+- Owns the public FastAPI contract in `openapi.yaml` (OpenAPI, request/response schemas, errors, idempotency).
+- Checks compatibility with DB and architecture.
+- Does not change the DB directly.
 
 ## Devenv
 
-- Владеет локальной dev-средой и reproducible startup flow.
-- Читает `project-stack.toml` как source of truth для container runtime, compose tool и API entrypoint'а.
-- При необходимости поднимает зависимости и само API.
-- Для контейнерной dev-среды использует `podman` и `podman-compose`.
-- Ведёт `docs/dev-environment.md` как канонический runtime/bootstrap артефакт.
+- Owns the local dev environment and reproducible startup flow.
+- Treats `project-stack.toml` as the source of truth for container runtime, compose tool, and API entrypoint.
+- Starts dependencies and the API when needed.
+- Uses `podman` and `podman-compose` for containerized dev by default.
+- Maintains `docs/dev-environment.md` as the canonical runtime/bootstrap artifact.
 
 ## Worker
 
-- Реализует FastAPI runtime: бизнес-логику, сервисы, репозитории и интеграции.
-- Читает `project-stack.toml` для runtime/DI/messaging assumptions перед реализацией.
-- Следует контрактам Architect/DB/API.
-- Не меняет архитектурные и контрактные решения без согласования.
+- Implements the FastAPI runtime: business logic, services, repositories, and integrations.
+- Reads `project-stack.toml` for runtime/DI/messaging assumptions before implementation.
+- Follows Architect/DB/API contracts.
+- Does not change architecture or contracts without explicit agreement.
 
 ## Tests
 
-- Пишет unit/integration/contract/security тесты.
-- Читает `project-stack.toml` для test runner, DB/cache/message infra и verify entrypoint'а.
-- Для integration/contract сценариев исходит из FastAPI/ASGI runtime.
-- Ведёт `docs/test-matrix.md` как канонический список test coverage.
-- Поддерживает матрицу доступов и негативные сценарии.
-- Не переписывает прод-код без необходимости.
+- Writes unit/integration/contract/security tests.
+- Reads `project-stack.toml` for test runner, DB/cache/message infra, and verify entrypoint.
+- Uses FastAPI/ASGI runtime for integration/contract scenarios.
+- Maintains `docs/test-matrix.md` as the canonical test coverage list.
+- Maintains the access matrix and negative scenarios.
+- Does not rewrite production code without need.
 
 ## Security Reviewer (read-only)
 
-- Проверяет broken access control, ownership, auth/rbac gaps и secret leakage.
-- Не вносит изменения в код и не пишет финальный gate.
+- Checks broken access control, ownership, auth/RBAC gaps, and secret leakage.
+- Does not change code and does not publish the final gate.
 
 ## Consistency Reviewer (read-only)
 
-- Проверяет idempotency, transaction boundaries, race conditions и duplicate side effects.
-- Не вносит изменения в код и не пишет финальный gate.
+- Checks idempotency, transaction boundaries, race conditions, and duplicate side effects.
+- Does not change code and does not publish the final gate.
 
 ## Performance Reviewer (read-only)
 
-- Проверяет N+1, индексы, тяжелые сортировки, query shape и bottleneck'и FastAPI + DB слоя.
-- Не вносит изменения в код и не пишет финальный gate.
+- Checks N+1, indexes, heavy sorts, query shape, and FastAPI + DB bottlenecks.
+- Does not change code and does not publish the final gate.
 
 ## Gatekeeper
 
-- Ждёт результаты review-агентов и агрегирует findings.
-- Ставит финальный gate и ведёт `docs/final-review.md`.
-- Не делает глубокий аудит вместо специализированных review-агентов.
+- Waits for the review agents and aggregates findings.
+- Publishes the final gate and maintains `docs/final-review.md`.
+- Does not perform a deep audit instead of specialized review agents.
 
 ## Explorer (read-only)
 
-- Анализирует структуру проекта, ТЗ и контракты.
-- Находит противоречия и пробелы в требованиях.
+- Analyzes the project structure, spec, and contracts.
+- Finds contradictions and gaps in requirements.
 
 ## Monitor (read-only)
 
-- Запускает единый verify entrypoint и собирает сводку.
-- Читает `project-stack.toml` как source of truth для verify entrypoint и container runtime.
-- Не меняет код.
+- Runs the single verify entrypoint and summarizes results.
+- Treats `project-stack.toml` as the source of truth for verify entrypoint and container runtime.
+- Does not change code.
 
-## Порядок verify entrypoint
+## Verify entrypoint order
 
-Machine-readable source of truth для verify: `project-stack.toml` (`verify_entrypoint`).
+Machine-readable source of truth for verify: `project-stack.toml` (`verify_entrypoint`).
 
-Если entrypoint из stack profile отсутствует или временно невалиден, Monitor/Tests используют fallback порядок:
+If the stack profile entrypoint is missing or temporarily invalid, Monitor/Tests use the fallback order:
 
 1. `./scripts/verify.sh`
 2. `make verify`
 3. `task verify`
-4. fallback: команды из раздела "How to test" в README
+4. fallback: commands from the README "How to test" section
 
-Если для dev-среды нужны контейнеры, стандарт проекта: `podman` + `podman-compose`.
+If dev uses containers, the default standard is `podman` + `podman-compose`.
 
-## Workflow по фазам
+## Workflow by phases
 
-Phase 1 — Architecture
+Phase 1: Architecture
 
-- Architect фиксирует архитектурные решения и ограничения.
-- Артефакты фазы: `docs/architecture.md` и минимум один `docs/adr/ADR-*.md`.
-- После успешного закрытия фазы Orchestrator делает локальный checkpoint commit.
+- Architect locks architecture decisions and constraints.
+- Phase artifacts: `docs/architecture.md` and at least one `docs/adr/ADR-*.md`.
+- After successful phase closure, Orchestrator creates a local checkpoint commit.
 
-Phase 2 — Contracts
+Phase 2: Contracts
 
-- DB и API работают параллельно.
-- Orchestrator проверяет совместимость контрактов.
-- Артефакты фазы: `openapi.yaml` и `docs/schema-decisions.md`.
-- После успешного закрытия фазы Orchestrator делает локальный checkpoint commit.
+- DB and API run in parallel.
+- Orchestrator checks contract compatibility.
+- Phase artifacts: `openapi.yaml` and `docs/schema-decisions.md`.
+- After successful phase closure, Orchestrator creates a local checkpoint commit.
 
-Phase 3 — Dev Environment + Implementation
+Phase 3: Dev environment + implementation
 
-- Devenv подготавливает локальную dev-среду и при необходимости поднимает сервисы/API.
-- Worker реализует функциональность строго по контрактам в runtime backend-коде.
-- Артефакт фазы: `docs/dev-environment.md`.
-- Изменения только в документации не считаются завершением Phase 3.
-- После успешного закрытия фазы Orchestrator делает локальный checkpoint commit.
+- Devenv prepares the local dev environment and starts services/API when needed.
+- Worker implements strictly against the contracts in real backend runtime code.
+- Phase artifact: `docs/dev-environment.md`.
+- Documentation-only changes do not count as finishing Phase 3.
+- After successful phase closure, Orchestrator creates a local checkpoint commit.
 
-Phase 4 — Testing
+Phase 4: Testing
 
-- Tests добавляет/обновляет тесты.
-- Monitor запускает verify entrypoint и публикует результат.
-- Артефакт фазы: `docs/test-matrix.md`.
-- После успешного закрытия фазы Orchestrator делает локальный checkpoint commit.
+- Tests add/update tests.
+- Monitor runs the verify entrypoint and publishes the result.
+- Phase artifact: `docs/test-matrix.md`.
+- After successful phase closure, Orchestrator creates a local checkpoint commit.
 
-Phase 5 — Review
+Phase 5: Review
 
-- Security Reviewer, Consistency Reviewer и Performance Reviewer работают параллельно.
-- Gatekeeper агрегирует findings и ставит финальный gate.
-- При blocker-issue задача возвращается соответствующему владельцу фазы.
-- Артефакт фазы: `docs/final-review.md`.
-- После успешного закрытия фазы Orchestrator делает локальный checkpoint commit.
+- Security Reviewer, Consistency Reviewer, and Performance Reviewer run in parallel.
+- Gatekeeper aggregates findings and publishes the final gate.
+- If there is a blocker, the task returns to the appropriate owner.
+- Phase artifact: `docs/final-review.md`.
+- After successful phase closure, Orchestrator creates a local checkpoint commit.
 
-Формат phase checkpoint commits:
+Checkpoint commit message format:
 
 - `phase-1: architecture and adr`
 - `phase-2: api and db contracts`
@@ -283,113 +282,113 @@ Phase 5 — Review
 - `phase-4: tests and verify`
 - `phase-5: final review and gate`
 
-Для checkpoint commits используется `./scripts/phase-commit.sh`. Шаблон не делает `git push` автоматически.
+Checkpoint commits use `./scripts/phase-commit.sh`. The template does not run `git push` automatically.
 
-## Что должно появиться после первого multi-agent прогона
+## Expected output after the first multi-agent run
 
-Минимально разумный первый прогон должен оставить после себя не только summary, но и файловые следы работы:
+A minimally reasonable first run should leave not only a summary, but also file artifacts:
 
-- `docs/architecture.md` с `Status != template`
-- минимум один `docs/adr/ADR-*.md`
-- `openapi.yaml` с `x-template-status != template`
-- `docs/schema-decisions.md` с `Status != template`
-- `docs/dev-environment.md` с `Status != template`
-- `docs/test-matrix.md` с `Status != template`
-- `docs/final-review.md` с `Status != template`
-- `.env.example` и базовый settings/bootstrap layer, если до прогона foundation отсутствовал
+- `docs/architecture.md` with `Status != template`
+- at least one `docs/adr/ADR-*.md`
+- `openapi.yaml` with `x-template-status != template`
+- `docs/schema-decisions.md` with `Status != template`
+- `docs/dev-environment.md` with `Status != template`
+- `docs/test-matrix.md` with `Status != template`
+- `docs/final-review.md` with `Status != template`
+- `.env.example` and a basic settings/bootstrap layer if foundation was missing before the run
 
-Кроме документов, должны появиться реальные backend-изменения хотя бы в одной из зон:
+In addition to docs, there must be real backend changes in at least one area:
 
-- runtime-код
-- миграции
-- тесты
+- runtime code
+- migrations
+- tests
 
-Если во время прогона всплыл конфликт между контрактами, допустимым артефактом также считается явный Change Request, а не молчаливое расхождение между API и DB.
+If a contract conflict appears during the run, an explicit Change Request is also an acceptable artifact; silent divergence between API and DB is not.
 
-## Фазовые артефакты по умолчанию
+## Default phase artifacts
 
-- `docs/architecture.md`: Phase 1, владелец `Architect`.
-- `docs/adr/ADR-*.md`: Phase 1, владелец `Architect`.
-- `openapi.yaml`: Phase 2, владелец `API`.
-- `docs/dev-environment.md`: Phase 3, владелец `Devenv`.
-- `docs/schema-decisions.md`: Phase 2, владелец `DB`.
-- `docs/test-matrix.md`: Phase 4, владелец `Tests`.
-- `docs/final-review.md`: Phase 5, владелец `Gatekeeper`.
+- `docs/architecture.md`: Phase 1, owned by `Architect`.
+- `docs/adr/ADR-*.md`: Phase 1, owned by `Architect`.
+- `openapi.yaml`: Phase 2, owned by `API`.
+- `docs/dev-environment.md`: Phase 3, owned by `Devenv`.
+- `docs/schema-decisions.md`: Phase 2, owned by `DB`.
+- `docs/test-matrix.md`: Phase 4, owned by `Tests`.
+- `docs/final-review.md`: Phase 5, owned by `Gatekeeper`.
 
-Правило завершения фазы:
+Phase completion rules:
 
-- Markdown-артефакт должен существовать и быть обновлён из template-state (`Status:` не равен `template`).
-- `openapi.yaml` должен существовать и быть обновлён из template-state (`x-template-status:` не равен `template`).
-- Orchestrator проверяет фазу по файлам и их статус-маркерам, а не по summary агента.
+- The Markdown artifact must exist and must be updated out of template state (`Status:` is not `template`).
+- `openapi.yaml` must exist and must be updated out of template state (`x-template-status:` is not `template`).
+- Orchestrator validates phases by files and status markers, not by agent summaries.
 
-## Правила взаимодействия
+## Interaction rules
 
-1. Контракты API/DB/Architecture не меняются без Change Request.
-2. DB не изменяет API-контракт напрямую.
-3. API не изменяет схему БД напрямую.
-4. Devenv владеет startup-командами, env bootstrap и локальными сервисами/API.
-5. Worker не переопределяет архитектурные решения.
-6. Security Reviewer, Consistency Reviewer, Performance Reviewer, Explorer и Monitor работают в read-only режиме.
-7. Gatekeeper агрегирует review-findings и публикует единственное финальное gate-решение.
-8. Все конфликтующие решения фиксируются явно и маршрутизируются через Orchestrator.
+1. API/DB/Architecture contracts do not change without a Change Request.
+2. DB does not change API contracts directly.
+3. API does not change the DB schema directly.
+4. Devenv owns startup commands, env bootstrap, and local services/API.
+5. Worker does not override architecture decisions.
+6. Security Reviewer, Consistency Reviewer, Performance Reviewer, Explorer, and Monitor run read-only.
+7. Gatekeeper aggregates review findings and publishes the single final gate decision.
+8. Conflicting decisions must be recorded explicitly and routed through Orchestrator.
 
-## Change Request Protocol
+## Change Request protocol
 
-Если изменение затрагивает контракт:
+If a change affects a contract:
 
-1. Зафиксировать:
-   - что меняется;
-   - почему текущее состояние блокирует работу;
-   - impact на API/DB/tests/release.
-2. Передать CR в Orchestrator.
-3. Orchestrator определяет порядок обновления фаз и ответственных.
+1. Record:
+   - what changes;
+   - why the current state blocks progress;
+   - impact on API/DB/tests/release.
+2. Hand the CR to Orchestrator.
+3. Orchestrator decides update ordering and owners.
 
-## Acceptance Conditions (Definition of Done)
+## Acceptance conditions (Definition of Done)
 
-Проект считается готовым, когда:
+The project is considered ready when:
 
-- реализованы все целевые endpoint'ы текущей версии API;
-- покрыты тестами RBAC/ownership и критичные негативные сценарии;
-- миграции применяются на чистой БД;
-- идемпотентность критичных mutation endpoint'ов подтверждена тестами;
-- подключены логи/метрики и есть минимальные health-проверки;
-- локальная dev-среда и API стартуют воспроизводимо;
-- есть `.env.example`, а секреты не захардкожены в коде и не закоммичены в `.env`;
-- слой ошибок использует единый app-level contract с безопасными публичными сообщениями;
-- граница `Service` / `Repository` соблюдена, транзакции управляются сервисом/UoW;
-- `project-stack.toml` соответствует реальному стеку и entrypoint'ам проекта;
-- обновлены фазовые артефакты по умолчанию: `docs/architecture.md`, `docs/adr/ADR-*.md`, `openapi.yaml`, `docs/dev-environment.md`, `docs/schema-decisions.md`, `docs/test-matrix.md`, `docs/final-review.md`;
-- backend-изменения внесены в исходники и/или миграции и/или тесты (не только в docs/.codex);
-- `./scripts/verify.sh` завершается с exit code `0`;
-- у Gatekeeper нет blocker issues по итогам review.
+- all target endpoints of the current API version are implemented;
+- RBAC/ownership and critical negative scenarios are covered by tests;
+- migrations apply to a clean DB;
+- idempotency of critical mutation endpoints is confirmed by tests;
+- logs/metrics are present and there are minimal health checks;
+- local dev environment and API start reproducibly;
+- `.env.example` exists and secrets are neither hardcoded nor committed in `.env`;
+- the error layer uses a unified app-level contract with safe public messages;
+- the `Service` / `Repository` boundary is respected and transactions are owned by service/UoW;
+- `project-stack.toml` matches the real project stack and entrypoints;
+- default phase artifacts are updated: `docs/architecture.md`, `docs/adr/ADR-*.md`, `openapi.yaml`, `docs/dev-environment.md`, `docs/schema-decisions.md`, `docs/test-matrix.md`, `docs/final-review.md`;
+- backend changes exist in source and/or migrations and/or tests (not only docs/.codex);
+- `./scripts/verify.sh` exits with code `0`;
+- Gatekeeper reports no blocker issues after review.
 
-## Что считается плохим прогоном
+## What a bad run looks like
 
-Плохой прогон для этого шаблона обычно выглядит так:
+A bad run for this template usually looks like:
 
-- изменились только `docs/`, `.codex/` или ТЗ, но нет runtime-кода, миграций или тестов;
-- фазовые артефакты остались в template-state (`Status: template` или `x-template-status: template`);
-- `project-stack.toml` не соответствует реальному проекту, а агенты работают по ложным assumptions;
-- в репозитории нет `.env.example`, а секреты и локальные настройки размазаны по коду или коммитнутому `.env`;
-- сервисы и репозитории смешали обязанности: бизнес-логика ушла в repo или транзакции делают `commit` / `rollback` вне сервиса/UoW;
-- API возвращает сырые library exceptions, `HTTPException` из внутренних слоев или сообщения с PII/секретами;
-- Orchestrator остановился на summary, хотя `verify` не зелёный или у Gatekeeper есть blocker findings;
-- API и DB разошлись, но Change Request не был оформлен явно;
-- для тестов или verify нужен поднятый стек, но Devenv не был задействован;
-- первый прогон не оставил воспроизводимых startup/verify подсказок для следующей итерации.
+- only `docs/`, `.codex/`, or the spec changed, but no runtime code, migrations, or tests changed;
+- phase artifacts are still in template state (`Status: template` or `x-template-status: template`);
+- `project-stack.toml` does not match the real project and agents operate on wrong assumptions;
+- `.env.example` is missing and secrets/local settings are spread across code or committed in `.env`;
+- services and repositories mixed responsibilities: business logic moved into repositories or transactions do `commit` / `rollback` outside service/UoW;
+- API returns raw library exceptions, internal-layer `HTTPException`, or messages containing PII/secrets;
+- Orchestrator stops at a summary even though `verify` is not green or Gatekeeper has blocker findings;
+- API and DB diverge without an explicit Change Request;
+- tests/verify require a running stack but Devenv was not used;
+- the first run did not leave reproducible startup/verify guidance for the next iteration.
 
-## Запуск через run.sh
+## Running via `run.sh`
 
-В корне проекта есть обёртка `run.sh` для типовых запусков.
+The project root includes `run.sh` for standard runs.
 
-Проверки:
+Verification:
 
 ```bash
 ./run.sh
 ./run.sh verify
 ```
 
-Multi-agent запуск Codex:
+Multi-agent Codex run:
 
 ```bash
 ./run.sh codex
@@ -398,19 +397,19 @@ Multi-agent запуск Codex:
 ./run.sh codex-danger backend_tz_from_template.md
 ```
 
-Справка по командам:
+Help:
 
 ```bash
 ./run.sh help
 ```
 
-Требования для `./run.sh codex`:
+Requirements for `./run.sh codex`:
 
-- команда `codex` доступна в `PATH`;
-- в `~/.codex/config.toml` должен существовать профиль `multi_agent_backend` (или профиль из `CODEX_MULTI_AGENT_PROFILE`);
-- если используемая версия `codex` поддерживает feature flag `multi_agent`, `run.sh` включит его автоматически.
+- `codex` is available in `PATH`;
+- `~/.codex/config.toml` contains a `multi_agent_backend` profile (or the profile in `CODEX_MULTI_AGENT_PROFILE`);
+- if your `codex` supports the `multi_agent` feature flag, `run.sh` enables it automatically.
 
-Минимально рекомендуемый профиль:
+Minimum recommended profile:
 
 ```toml
 [profiles.multi_agent_backend]
@@ -418,27 +417,27 @@ approval_policy = "never"
 sandbox_mode = "danger-full-access"
 ```
 
-Режимы запуска:
+Run modes:
 
-- `./run.sh codex ...`: запускает шаблон через обязательный профиль `multi_agent_backend`.
-- `./run.sh codex-auto ...`: использует тот же профиль, но принудительно переключает Codex в `--full-auto`.
-- `./run.sh codex-danger ...`: использует тот же профиль, но принудительно переключает Codex в `--dangerously-bypass-approvals-and-sandbox`.
+- `./run.sh codex ...`: runs the template via the required `multi_agent_backend` profile.
+- `./run.sh codex-auto ...`: uses the same profile, but forces `--full-auto`.
+- `./run.sh codex-danger ...`: uses the same profile, but forces `--dangerously-bypass-approvals-and-sandbox`.
 
 ## How to test
 
-Базовый entrypoint проверки:
+Base verify entrypoint:
 
 ```bash
 ./run.sh verify
 ```
 
-Прямой запуск verify-скрипта:
+Direct verify script:
 
 ```bash
 ./scripts/verify.sh
 ```
 
-Альтернативные entrypoint'ы (если поддерживаются проектом):
+Alternative entrypoints (if supported by the project):
 
 ```bash
 make verify
