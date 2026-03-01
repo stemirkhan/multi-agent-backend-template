@@ -101,8 +101,12 @@ build_prompt() {
 Не позволяй Worker/Tests/Monitor зависать на ad-hoc установке зависимостей; dependency bootstrap и startup flow — зона ответственности Devenv.
 После каждого успешно закрытого Phase делай один локальный checkpoint commit через `./scripts/phase-commit.sh`, прежде чем переходить к следующему Phase.
 Формат commit message: `phase-N: <short summary>`. Не делай `git push` автоматически. Не amend'и уже созданные checkpoint commits.
-В Phase 5 сначала запускай security-reviewer, consistency-reviewer и performance-reviewer параллельно, затем Gatekeeper.
-Если находишь blocker — сам запускай CR, назначай нужного агента, вноси правки и перезапускай только нужные фазы.
+В Phase 5 используй только bounded loop: один полный review pass, максимум один remediation pass и один targeted re-review.
+Полный review pass: сначала запускай security-reviewer, consistency-reviewer и performance-reviewer параллельно, затем Gatekeeper.
+Если находишь blocker — сам запускай CR, назначай нужного агента и делай один remediation pass.
+После remediation rerun'ь только review-домены, затронутые blocker-findings, и только по изменённым файлам/flow из blocker diff; не проси review-агентов заново сканировать весь репозиторий.
+Если после remediation `./scripts/verify.sh` завершился с exit code 0 и Gatekeeper вернул `pass`, сразу закрывай Phase 5 checkpoint commit'ом и не запускай новый review cycle.
+Если blocker сохраняется после targeted re-review, останови automation loop и верни короткую сводку unresolved blockers с следующим владельцем вместо очередного автоматического повтора.
 Останавливайся только если нужен внешний ввод (секрет, доступ, бизнес-решение) — тогда задай один конкретный вопрос.
 EOF
 )"
