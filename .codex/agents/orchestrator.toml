@@ -27,7 +27,7 @@ Do not make agents guess the stack if the profile is already filled in.
 
 Phases:
 1) Architect: lock architectural decisions as contracts (queue, cache, security boundaries).
-2) In parallel: DB + API. Wait for both. Check that API and DB are compatible.
+2) In parallel: DB + API. Wait for both. Check that API and DB are compatible and that OpenAPI is generated from the task spec with full in-scope operation coverage.
 3) Devenv -> Worker: Devenv prepares the local dev environment and starts services/API if needed; then Worker implements against the contracts in real backend code.
 4) Tests: tests. Then Monitor: run the verify entrypoint from `project-stack.toml` and summarize the result.
    If the profile entrypoint does not work, the fallback order is: ./scripts/verify.sh -> make verify -> task verify -> README fallback.
@@ -35,12 +35,18 @@ Phases:
 
 Required phase artifacts:
 - Phase 1: docs/architecture.md (Status != template) and at least one ADR in docs/adr/ADR-*.md.
-- Phase 2: openapi.yaml (x-template-status != template) and docs/schema-decisions.md (Status != template).
+- Phase 2: openapi.yaml exists and x-template-status != template, plus docs/schema-decisions.md (Status != template).
 - Phase 3: docs/dev-environment.md (Status != template).
 - Phase 4: docs/test-matrix.md (Status != template).
 - Phase 5: docs/final-review.md (Status != template).
 
 Rules:
+- Treat the task spec (`TZ` file) as the primary product contract input.
+- Do not treat pre-existing `openapi.yaml` content as source-of-truth; it may be placeholder-only or absent.
+- In Phase 2, API must generate or fully replace `openapi.yaml` from task-spec requirements and agreed contracts.
+- Build a required operation inventory from task-spec FR/US/acceptance criteria before implementation.
+- If task requirements imply endpoints that are absent in generated `openapi.yaml`, Phase 2 is not complete; return to API+DB to expand the contract first.
+- Do not accept healthcheck-only OpenAPI when the task spec includes business modules.
 - Change API/DB/Architect contracts only through an explicit "change request".
 - If contracts conflict, require a CR via the `$change-request-writer` skill before restarting the phase.
 - If the repository has no coherent backend skeleton, assign Worker with the `$backend-bootstrap` skill first, and only then proceed to feature implementation.
@@ -58,7 +64,9 @@ Rules:
 - After blocker fixes, rerun only the review domains affected by the blocker findings, and only for changed files/flows since the previous Phase 5 review diff; do not ask review agents to scan the entire repository again.
 - If after remediation `verify` exits with code 0 and Gatekeeper returns `pass`, close Phase 5 with a checkpoint commit and do not start another review cycle.
 - If a blocker remains after the targeted re-review, stop the automatic loop, return a short summary of unresolved blockers and the next owner, and do not repeat Phase 5 without an explicit new user run.
-- Phase 4 success criterion: verify exits with code 0.
+- Phase 4 success criterion: verify exits with code 0 and required operation coverage evidence exists in tests and docs/test-matrix.md (TZ requirement -> operationId -> tests).
+- Do not close workflow when required OpenAPI operations are missing runtime handlers, persistence path (for mutating endpoints), or tests.
+- Gatekeeper `pass` requires explicit confirmation that required operation coverage is complete.
 - Do not close a backend task if changes exist only in docs/*.md, backend_tz_from_template.md, or .codex/*. There must be changes in backend source code and/or migrations and/or tests.
 - Always return: (a) what is done, (b) what is blocking, (c) who gets the next task.
 """

@@ -13,6 +13,8 @@ Context and boundaries:
 
 Tasks:
 - OpenAPI /api/v1: FastAPI-compatible endpoints, statuses, errors, pagination, filters, sorting.
+- Build endpoint inventory from task spec (FR + scenarios + acceptance checklist) and map each item to concrete OpenAPI operations.
+- Generate `openapi.yaml` from the task spec if it is missing, and replace placeholder-only content when present.
 - Pydantic request/response schemas + one unified error format.
 - Lock stable error codes (string codes) so tests can validate them reliably.
 - Check DB compatibility: types, nullability, enums, constraints, required fields.
@@ -30,6 +32,10 @@ Rules:
   - why the contract needs it,
   - impact on compatibility/migrations/indexes.
 - Use the `$change-request-writer` skill from `.codex/skills/change-request-writer/SKILL.md` for CRs.
+- Do not leave business requirements without operations in OpenAPI. Every in-scope requirement must map to one or more endpoints.
+- Do not treat pre-existing OpenAPI content as source-of-truth when it conflicts with the task spec.
+- Do not accept healthcheck-only contract if task spec includes business modules.
+- You may mark an operation as deferred only with `x-implementation-status: deferred` and a clear out-of-scope reason aligned with the task spec.
 - Do not write business logic (that belongs to Worker), only the contract and surface validation.
 - For each endpoint, lock an explicit error set (code + HTTP status), without drifting wording.
 - The unified error model must use `code`, `message`, `details`; public responses must not leak secrets, PII, or internal technical details.
@@ -39,5 +45,6 @@ Output:
 - Updated `openapi.yaml` for OpenAPI v1. Update `x-template-status` from `template` to a working value.
 - Pydantic schemas synchronized with `openapi.yaml`.
 - A stable list of error codes for contract tests.
+- Operation coverage report: `TZ requirement -> OpenAPI operationId -> status` (`in_scope` or `deferred` + reason).
 - A list of API<->DB incompatibilities found and prepared CRs (if needed).
 """

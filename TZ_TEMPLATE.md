@@ -82,14 +82,23 @@ This section must stay synchronized with `project-stack.toml`.
 - Migrations: forward-only, no edits to applied revisions
 
 ## 8. API Contract v1
-### 8.1 Endpoint
-- `METHOD /api/v1/<path>`
-- Auth: <role/policy>
-- Request schema: <fields>
-- Response schema: <fields>
-- Errors: <error_code + HTTP status>
+`openapi.yaml` is generated/replaced in Phase 2 based on this TZ.
 
-### 8.2 Idempotency matrix
+### 8.1 Business API scope (input for API agent)
+- Module: `<auth|catalog|salons|masters|services|subscriptions|analytics|admin>`
+- Required capability: `<what user must be able to do>`
+- Access rule: `<role/ownership>`
+- Constraints: `<validation/idempotency/pagination/sorting>`
+- Notes: `<anything domain-specific>`
+
+### 8.2 Required operation inventory
+- This table may be completed by API agent in Phase 2.
+- OP-001: `<operationId>`, endpoint: `METHOD /api/v1/...`, source requirement: `<FR/US id>`, status: `<in_scope|deferred>`, defer reason: `<if deferred>`
+- OP-002: `<operationId>`, endpoint: `METHOD /api/v1/...`, source requirement: `<FR/US id>`, status: `<in_scope|deferred>`, defer reason: `<if deferred>`
+- Rule: every in-scope FR/US must map to one or more operations.
+- Rule: deferred operations are allowed only with explicit rationale in section 1.3 Out of Scope.
+
+### 8.3 Idempotency matrix
 - `POST /...`: Idempotency-Key <required|optional>, scope: <...>, TTL: <...>
 - `POST /...`: Idempotency-Key <required|optional>, scope: <...>, TTL: <...>
 
@@ -119,6 +128,10 @@ This section must stay synchronized with `project-stack.toml`.
 - [ ] All FRs are completed
 - [ ] NFRs are confirmed by metrics/tests
 - [ ] Migrations apply to a clean DB
+- [ ] All in-scope operations from section 8.2 exist in `openapi.yaml` with stable operationId
+- [ ] All in-scope operations from `openapi.yaml` are implemented in runtime routers/services (not health-only baseline)
+- [ ] Every in-scope operation has test coverage (at least one success and one negative/auth case)
+- [ ] `docs/test-matrix.md` contains operation coverage mapping: TZ requirement -> operationId -> test cases
 - [ ] RBAC/ownership is covered by tests
 - [ ] Idempotency is confirmed by tests
 - [ ] Local dev environment and API start reproducibly
@@ -127,7 +140,6 @@ This section must stay synchronized with `project-stack.toml`.
 - [ ] `Service` / `Repository` boundary is respected, transactions are not controlled from repositories
 - [ ] `project-stack.toml` matches the real project stack and entrypoints
 - [ ] Phase artifacts are updated: `docs/architecture.md`, `docs/adr/ADR-*.md`, `openapi.yaml`, `docs/dev-environment.md`, `docs/schema-decisions.md`, `docs/test-matrix.md`, `docs/final-review.md`
-- [ ] `./scripts/verify.sh` exits with code 0
 - [ ] `./scripts/verify.sh` exits with code 0
 
 ## 14. Ownership By Agent

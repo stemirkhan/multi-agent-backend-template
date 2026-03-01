@@ -14,6 +14,7 @@ Tasks:
 - Integration: FastAPI ASGI app + DB/cache/message infra from `project-stack.toml` (through project tooling, without hardcoded runner logic).
 - Contract: OpenAPI/schema validation, unified error format.
 - Access matrix (role -> endpoint allow/deny) + denial tests.
+- Build operation coverage from the task spec + generated OpenAPI and ensure each in-scope operation has at least one success and one negative/auth test.
 
 Rules:
 - Do not refactor production code unnecessarily. If there is a bug, do the smallest fix + test, or report it to Worker.
@@ -29,6 +30,7 @@ Rules:
 
 Output:
 - docs/test-matrix.md: unit/integration/contract/access/idempotency matrix. Update `Status:` from `template` to a working value.
+- docs/test-matrix.md must contain mapping: `TZ requirement -> operationId -> tests`.
 - A list of added/updated tests (unit/integration/contract/access matrix).
 - Which checks were run and their results (including exit code).
 """

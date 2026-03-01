@@ -12,14 +12,15 @@ Build a backend where:
 
 - architectural decisions are locked and agreed;
 - API and DB are compatible and stable;
+- required business operations from the spec/OpenAPI are fully implemented, not left as a bootstrap-only skeleton;
 - tests and verify runs are green;
 - there are no blocker risks in security or correctness.
 
 ## Create A New Backend From This Template
 
 1. Copy this template into a new repository.
-2. Review and update `project-stack.toml` to match the real project stack.
-3. Fill in `TZ_TEMPLATE.md` or create `backend_tz_from_template.md` based on it.
+2. Prepare `TZ_TEMPLATE.md` (or your own TZ file) as the primary input contract.
+3. Keep `project-stack.toml` defaults unless your real stack differs.
 4. Add or clarify reproducible project entrypoints if they are already known:
    - `./scripts/dev-bootstrap.sh`
    - `./scripts/dev-up.sh`
@@ -94,10 +95,14 @@ Important:
 
 ## What the user must fill in
 
-Before the first run, the user must explicitly provide at least these inputs:
+Before the first run, the user must explicitly provide this input:
 
-- `project-stack.toml`: real stack profile, API and verify entrypoints, container runtime, broker/cache/DB.
 - `TZ_TEMPLATE.md` or `backend_tz_from_template.md`: MVP goal, FR/NFR, API/DB assumptions, RBAC, acceptance checklist.
+
+Template defaults are pre-filled:
+
+- `project-stack.toml` is preconfigured for the FastAPI template stack and can stay unchanged unless the real stack differs.
+- `openapi.yaml` is not required from user input and must be generated/replaced by agents in Phase 2 from TZ requirements.
 
 Nice to have in advance:
 
@@ -105,7 +110,7 @@ Nice to have in advance:
 - `./scripts/dev-bootstrap.sh`, `./scripts/dev-up.sh`, `./scripts/dev-api.sh` or `make`/`task` entrypoints if the local bootstrap/startup flow is already known;
 - `.env.example` if the project already needs local settings and secret variables.
 
-Do not pre-fill phase artifacts in `docs/*.md` and `openapi.yaml` before running. They already exist as template artifacts and are expected to be updated by agents during the workflow.
+Do not pre-fill phase artifacts in `docs/*.md` before running. `openapi.yaml` should be generated/replaced by agents from TZ requirements during Phase 2.
 
 ## Stack assumptions
 
@@ -247,8 +252,10 @@ Phase 1: Architecture
 Phase 2: Contracts
 
 - DB and API run in parallel.
-- Orchestrator checks contract compatibility.
+- Orchestrator checks contract compatibility and required operation coverage derived from TZ.
 - Phase artifacts: `openapi.yaml` and `docs/schema-decisions.md`.
+- API must generate or replace `openapi.yaml` from TZ requirements (not reuse placeholder-only content).
+- Phase 2 is not complete if business requirements imply endpoints that are missing from generated `openapi.yaml`.
 - After successful phase closure, Orchestrator creates a local checkpoint commit.
 
 Phase 3: Dev environment + implementation
@@ -264,6 +271,7 @@ Phase 4: Testing
 - Tests add/update tests.
 - Monitor runs the verify entrypoint and publishes the result.
 - Phase artifact: `docs/test-matrix.md`.
+- `docs/test-matrix.md` must include operation coverage mapping (`TZ requirement -> operationId -> tests`) for all in-scope operations.
 - After successful phase closure, Orchestrator creates a local checkpoint commit.
 
 Phase 5: Review
@@ -291,6 +299,7 @@ A minimally reasonable first run should leave not only a summary, but also file 
 - `docs/architecture.md` with `Status != template`
 - at least one `docs/adr/ADR-*.md`
 - `openapi.yaml` with `x-template-status != template`
+- `openapi.yaml` generated from TZ requirements (not health-only unless TZ scope is system-only)
 - `docs/schema-decisions.md` with `Status != template`
 - `docs/dev-environment.md` with `Status != template`
 - `docs/test-matrix.md` with `Status != template`
@@ -319,6 +328,7 @@ Phase completion rules:
 
 - The Markdown artifact must exist and must be updated out of template state (`Status:` is not `template`).
 - `openapi.yaml` must exist and must be updated out of template state (`x-template-status:` is not `template`).
+- Required in-scope TZ requirements must map to OpenAPI operations implemented in runtime code and covered by tests; deferred operations require explicit out-of-scope justification.
 - Orchestrator validates phases by files and status markers, not by agent summaries.
 
 ## Interaction rules
@@ -348,6 +358,7 @@ If a change affects a contract:
 The project is considered ready when:
 
 - all target endpoints of the current API version are implemented;
+- all in-scope TZ requirements are mapped to OpenAPI operations and implemented;
 - RBAC/ownership and critical negative scenarios are covered by tests;
 - migrations apply to a clean DB;
 - idempotency of critical mutation endpoints is confirmed by tests;
@@ -356,7 +367,7 @@ The project is considered ready when:
 - `.env.example` exists and secrets are neither hardcoded nor committed in `.env`;
 - the error layer uses a unified app-level contract with safe public messages;
 - the `Service` / `Repository` boundary is respected and transactions are owned by service/UoW;
-- `project-stack.toml` matches the real project stack and entrypoints;
+- `project-stack.toml` matches the real project stack and entrypoints (template defaults are valid if unchanged);
 - default phase artifacts are updated: `docs/architecture.md`, `docs/adr/ADR-*.md`, `openapi.yaml`, `docs/dev-environment.md`, `docs/schema-decisions.md`, `docs/test-matrix.md`, `docs/final-review.md`;
 - backend changes exist in source and/or migrations and/or tests (not only docs/.codex);
 - `./scripts/verify.sh` exits with code `0`;
@@ -368,6 +379,7 @@ A bad run for this template usually looks like:
 
 - only `docs/`, `.codex/`, or the spec changed, but no runtime code, migrations, or tests changed;
 - phase artifacts are still in template state (`Status: template` or `x-template-status: template`);
+- `openapi.yaml` remains health-only while the spec requires business API modules;
 - `project-stack.toml` does not match the real project and agents operate on wrong assumptions;
 - `.env.example` is missing and secrets/local settings are spread across code or committed in `.env`;
 - services and repositories mixed responsibilities: business logic moved into repositories or transactions do `commit` / `rollback` outside service/UoW;
@@ -406,7 +418,8 @@ Help:
 Requirements for `./run.sh codex`:
 
 - `codex` is available in `PATH`;
-- `~/.codex/config.toml` contains a `multi_agent_backend` profile (or the profile in `CODEX_MULTI_AGENT_PROFILE`);
+- `~/.codex/config.toml` may contain a `multi_agent_backend` profile (or the profile in `CODEX_MULTI_AGENT_PROFILE`);
+- if no profile is found, `run.sh` runs without `--profile` and prints a warning;
 - if your `codex` supports the `multi_agent` feature flag, `run.sh` enables it automatically.
 
 Minimum recommended profile:
@@ -419,9 +432,9 @@ sandbox_mode = "danger-full-access"
 
 Run modes:
 
-- `./run.sh codex ...`: runs the template via the required `multi_agent_backend` profile.
-- `./run.sh codex-auto ...`: uses the same profile, but forces `--full-auto`.
-- `./run.sh codex-danger ...`: uses the same profile, but forces `--dangerously-bypass-approvals-and-sandbox`.
+- `./run.sh codex ...`: uses `multi_agent_backend` profile if found, otherwise falls back to `--ask-for-approval never --sandbox danger-full-access`.
+- `./run.sh codex-auto ...`: uses profile when available and forces `--full-auto` (works without profile too).
+- `./run.sh codex-danger ...`: uses profile when available and forces `--dangerously-bypass-approvals-and-sandbox` (works without profile too).
 
 ## How to test
 
