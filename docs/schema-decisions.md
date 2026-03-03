@@ -1,36 +1,22 @@
-# Schema Decisions
+# Schema Notes (Optional)
 Status: template
-Owner: DB
-Phase: 2
+Owner: Worker
 
-This file is required for Phase 2.
-Before closing the phase, document real schema-level decisions and update `Status:`.
+This document is optional in the simplified workflow.
+Use it when schema/index decisions need explicit rationale.
 
-## 1. Entities And Ownership
+## 1. Entities
 - Entity:
-- Primary key:
-- Ownership / tenant rule:
+- Ownership rule:
 
 ## 2. Constraints
 - Foreign keys:
-- Unique constraints:
-- Check constraints:
-- Enum reuse:
+- Unique/check constraints:
 
-## 3. Index Decisions
+## 3. Indexes
 - Index:
-- Query / sort served:
-- Why this index is needed:
+- Query served:
 
-## 4. Data Policies
-- Soft delete:
-- created_at / updated_at:
-- Money representation:
-
-## 5. Migration Notes
+## 4. Migrations
 - Forward-only plan:
-- Rollout / backfill:
-- Known migration risks:
-
-## 6. Open Questions
-- Question:
+- Risks:

@@ -1,43 +1,28 @@
-# Dev Environment
+# Dev Environment Notes (Optional)
 Status: template
-Owner: Devenv
-Phase: 3
+Owner: Worker
 
-This file is required for Phase 3.
-Before closing the phase, document a reproducible local startup flow and update `Status:`.
+This document is optional in the simplified workflow.
+Use it when startup/bootstrap steps are non-trivial.
 
-## 0. Dependency Bootstrap
+## 1. Dependency Bootstrap
 - Command:
-- Local venv / environment path:
-- Package manager / manifest:
+- Environment path:
 
-## 1. Required Services
-- Container runtime: `podman`
-- Compose runner: `podman-compose`
-- Service:
-- Purpose:
-- Start command:
-
-## 2. Environment Files And Variables
-- File:
-- Required vars:
-- Secret source / placeholder:
+## 2. Required Services
+- Container runtime:
+- Compose runner:
+- Services:
 
 ## 3. API Startup
-- Command (usually FastAPI/ASGI, e.g. `uvicorn <module>:app --reload`):
-- Working directory:
+- Command:
 - Base URL:
 - Health endpoint:
 
-## 4. Start / Stop / Reset
+## 4. Start / Stop
 - Start:
 - Stop:
 - Reset:
 
-## 5. Verification
-- How to confirm services are up:
-- How to confirm API is reachable:
-- Known limitations:
-
-## 6. Current Blockers
-- Blocker:
+## 5. Known Limitations
+- Limitation:

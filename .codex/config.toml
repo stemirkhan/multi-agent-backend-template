@@ -2,57 +2,25 @@
 multi_agent = true
 
 [agents]
-max_threads = 12
-max_depth = 6
+max_threads = 6
+max_depth = 4
 
 [agents.orchestrator]
-description = "Orchestrator: manages phases, collects results, resolves conflicts."
+description = "Orchestrator: runs 3-phase flow and assigns work."
 config_file = "agents/orchestrator.toml"
 
-[agents.architect]
-description = "Architecture: NFRs, module boundaries, queue/cache decisions."
-config_file = "agents/architect.toml"
-
 [agents.api]
-description = "API: contracts, OpenAPI, schemas, errors, pagination, idempotency."
+description = "API: OpenAPI contract and operation inventory."
 config_file = "agents/api.toml"
 
-[agents.db]
-description = "DB: schema, Alembic migrations, indexes, seeds."
-config_file = "agents/db.toml"
-
-[agents.devenv]
-description = "Dev Environment: boots local services, API, and dev entrypoints."
-config_file = "agents/devenv.toml"
-
 [agents.worker]
-description = "Implementation: writes feature code strictly against API/DB/Architect contracts."
+description = "Worker: backend implementation against OpenAPI contract."
 config_file = "agents/worker.toml"
 
 [agents.tests]
-description = "Tests: unit+integration+contract, fixtures, access matrix."
+description = "Tests: operation-level tests and check execution."
 config_file = "agents/tests.toml"
 
-[agents.security-reviewer]
-description = "Security Review: access control, ownership, auth/rbac, secret leakage."
-config_file = "agents/security-reviewer.toml"
-
-[agents.consistency-reviewer]
-description = "Consistency Review: idempotency, transactions, races, duplicate side effects."
-config_file = "agents/consistency-reviewer.toml"
-
-[agents.performance-reviewer]
-description = "Performance Review: N+1, indexes, heavy sorts, query bottlenecks."
-config_file = "agents/performance-reviewer.toml"
-
 [agents.gatekeeper]
-description = "Gatekeeper: aggregates review findings and publishes the final gate."
+description = "Gatekeeper: final pass/fail decision and final-review artifact."
 config_file = "agents/gatekeeper.toml"
-
-[agents.explorer]
-description = "Explorer: read-only, reads code/specs, maps the project."
-config_file = "agents/explorer.toml"
-
-[agents.monitor]
-description = "Monitor: read-only, runs commands and summarizes output."
-config_file = "agents/monitor.toml"

@@ -1,10 +1,9 @@
 # Test Matrix
 Status: template
 Owner: Tests
-Phase: 4
 
-This file is required for Phase 4.
-Before closing the phase, document real coverage and update `Status:`.
+This file is part of the validation phase.
+Document real coverage and update `Status:`.
 
 ## 1. Unit Tests
 - Scenario:
@@ -23,12 +22,12 @@ Before closing the phase, document real coverage and update `Status:`.
 - Allow:
 - Deny:
 
-## 5. Idempotency And Negative Cases
+## 5. Negative And Idempotency Cases
 - Endpoint:
 - Idempotency check:
 - Negative case:
 
-## 6. Verify Runs
+## 6. Check Runs
 - Entrypoint:
 - Exit code:
 - Notes:

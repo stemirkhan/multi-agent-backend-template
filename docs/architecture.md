@@ -1,10 +1,9 @@
-# Architecture Contract
+# Architecture Notes (Optional)
 Status: template
-Owner: Architect
-Phase: 1
+Owner: Worker
 
-This file is required for Phase 1.
-Before closing the phase, replace template placeholders with real decisions and update `Status:`.
+This document is optional in the simplified workflow.
+Use it when architectural decisions need explicit recording.
 
 ## 1. System Scope
 - Product/domain:
@@ -17,32 +16,12 @@ Before closing the phase, replace template placeholders with real decisions and 
 - Persistence:
 - Background workers:
 
-## 3. Data Flow
-- Write path:
-- Read path:
-- Event flow:
+## 3. Key Decisions
+- Cache/queue:
+- Transaction boundaries:
+- Security boundaries:
+- Observability:
 
-## 4. Cache And Queue Decisions
-- Cache keys / TTL / invalidation:
-- Queue / stream choice:
-- Retry / failure handling:
-
-## 5. Transaction Boundaries
-- What must be atomic:
-- What is eventually consistent:
-- Idempotency assumptions:
-
-## 6. Security Boundaries
-- Authentication:
-- RBAC:
-- Ownership boundary:
-- Secret handling:
-
-## 7. Observability
-- Logs:
-- Metrics:
-- Health checks:
-
-## 8. Risks And Open Questions
+## 4. Risks And Open Questions
 - Risk:
 - Open question:

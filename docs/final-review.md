@@ -1,17 +1,15 @@
 # Final Review
 Status: template
 Owner: Gatekeeper
-Phase: 5
 
-This file is required for Phase 5.
-Before closing the phase, record the final gate decision after aggregating review findings and update `Status:`.
+This file is part of the final gate.
+Record the final pass/fail decision and update `Status:`.
 
 ## 1. Review Scope
 - Commit / diff:
 - Areas reviewed:
 
 ## 2. Findings
-- Source reviewer:
 - Severity:
 - Where:
 - Reproduction:
