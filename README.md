@@ -63,6 +63,34 @@ Less interactive:
 ./run.sh codex-auto backend_tz.md
 ```
 
+## Import Into Existing Git Project
+
+If the target directory already has its own `.git`, do not run `git clone ... .`.
+Import template files without replacing project git history:
+
+```bash
+cd /path/to/your-existing-project
+git checkout -b chore/import-multi-agent-template
+
+git clone https://github.com/stemirkhan/multi-agent-backend-template.git /tmp/mab-template
+
+# preview changes first
+rsync -avhn --exclude '.git' /tmp/mab-template/ ./
+
+# apply import
+rsync -avh --exclude '.git' /tmp/mab-template/ ./
+
+rm -rf /tmp/mab-template
+chmod +x run.sh scripts/dev-bootstrap.sh scripts/check.sh || true
+git status
+```
+
+If you want to copy only missing files (without overwriting existing ones):
+
+```bash
+rsync -avh --ignore-existing --exclude '.git' /tmp/mab-template/ ./
+```
+
 ## Local Commands
 
 Run checks:
