@@ -20,4 +20,3 @@ compose_tool = "podman-compose"
 
 api_runner = "uvicorn"
 api_entrypoint = "app.main:app"
-verify_entrypoint = "./scripts/verify.sh"

@@ -16,7 +16,7 @@
 - Bound Phase 5 to a hard loop: one full review pass, at most one remediation pass, and one targeted re-review.
 - The full review pass runs as before: `security-reviewer`, `consistency-reviewer`, and `performance-reviewer` in parallel, then `Gatekeeper`.
 - After fixing blockers, rerun only the review domains affected by blocker findings, and only for changed files/flows, not the entire repository.
-- If after remediation `verify` is green and `Gatekeeper` returns `pass`, close Phase 5 immediately with a checkpoint commit and do not start another review cycle.
+- If after remediation tests/checks are green and `Gatekeeper` returns `pass`, close Phase 5 immediately with a checkpoint commit and do not start another review cycle.
 - If a blocker remains after the targeted re-review, stop the automation loop and have Orchestrator return unresolved blockers to the user/next owner instead of automatically repeating again.
 
 ## Alternatives Considered
@@ -55,9 +55,9 @@
 
 ## Verification
 - Checks/tests required:
-  - `./scripts/verify.sh`
+  - `pytest -q` (or the repository's current test/check entrypoint)
   - Check that `orchestrator.toml` and `run.sh` describe the same bounded Phase 5 policy.
-- Expected verify result (`exit code 0`).
+- Expected check result (`exit code 0`).
 
 ## Open Questions
 - Do we want an explicit machine-readable marker for Phase 5 rerun budget so Monitor can validate policy beyond prompt text?

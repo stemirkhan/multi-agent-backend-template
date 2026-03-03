@@ -59,11 +59,11 @@
 
 ## Verification
 - Checks/tests required:
-  - `./scripts/verify.sh`
+  - `pytest -q` (or the repository's current test/check entrypoint)
   - Manual prompt inspection: `run.sh` includes required operation completeness conditions.
   - Agent config inspection: orchestrator/api/gatekeeper include operation completeness rules.
   - Template inspection: `TZ_TEMPLATE.md` acceptance checklist requires operation coverage.
-- Expected verify result (`exit code 0`).
+- Expected check result (`exit code 0`).
 
 ## Open Questions
 - Should we add an explicit machine-readable `operation inventory` artifact (for example `docs/operation-matrix.md`) instead of relying on `docs/test-matrix.md` only?

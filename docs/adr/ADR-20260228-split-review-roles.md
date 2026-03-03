@@ -41,7 +41,7 @@
 
 ## Rollout Plan
 1. `orchestrator`: replace the monolithic reviewer with four roles and update Phase 5.
-2. `docs/config/verify`: synchronize the registry, required agents, ownership, and the final review artifact.
+2. `docs/config`: synchronize the registry, required agents, ownership, and the final review artifact.
 
 ## Rollback Plan
 - Trigger condition:
@@ -53,10 +53,10 @@
 
 ## Verification
 - Checks/tests required:
-  - `./scripts/verify.sh`
+  - `pytest -q` (or the repository's current test/check entrypoint)
   - Check that required agents include three review agents and `Gatekeeper`.
   - Check that docs and prompts use `Gatekeeper` as the final source of truth.
-- Expected verify result (`exit code 0`).
+- Expected check result (`exit code 0`).
 
 ## Open Questions
 - Do we want separate `docs/reviews/*.md` artifacts in the future for per-reviewer traceability?

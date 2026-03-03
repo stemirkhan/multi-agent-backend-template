@@ -9,8 +9,7 @@ usage() {
 Usage: ./run.sh [command]
 
 Commands:
-  verify             Run project verification checks (default)
-  codex [tz_file]    Run Codex via multi-agent profile (or fallback flags)
+  codex [tz_file]    Run Codex via multi-agent profile (default)
   codex-auto [tz_file]
                      Run Codex via profile when available, override to --full-auto
   codex-danger [tz_file]
@@ -70,24 +69,13 @@ print_profile_missing_warning() {
   printf '\n[profiles.%s]\napproval_policy = "never"\nsandbox_mode = "danger-full-access"\n\n' "$profile_name" >&2
 }
 
-run_verify() {
-  local verify_script="./scripts/verify.sh"
-
-  if [[ ! -x "$verify_script" ]]; then
-    printf 'Missing executable: %s\n' "$verify_script" >&2
-    exit 1
-  fi
-
-  "$verify_script"
-}
-
 build_prompt() {
   local tz_file="$1"
   local prompt
 
   prompt="$(cat <<'EOF'
 You are the Orchestrator for a FastAPI-only template. Do not propose another web stack.
-Read `project-stack.toml` first. It is the machine-readable source of truth for language/framework/orm/migration_tool/test_runner, di_library, message_framework/message_broker/message_transport, cache/db, container_runtime/compose_tool, api_runner/api_entrypoint, and verify_entrypoint. Do not make agents guess the stack if the profile is already filled in.
+Read `project-stack.toml` first. It is the machine-readable source of truth for language/framework/orm/migration_tool/test_runner, di_library, message_framework/message_broker/message_transport, cache/db, container_runtime/compose_tool, and api_runner/api_entrypoint. Do not make agents guess the stack if the profile is already filled in.
 If `project-stack.toml` is missing, invalid, or contradicts the real project, fix it first as a template-level blocker.
 Use __TZ_FILE__ as the primary product contract input.
 Do not treat pre-existing `openapi.yaml` as source-of-truth; it may be absent or placeholder-only.
@@ -103,7 +91,7 @@ Work in Phase 1..5 iterations until all conditions are satisfied:
    - docs/schema-decisions.md -> Status != template
    - docs/test-matrix.md -> Status != template
    - docs/final-review.md -> Status != template
-2) ./scripts/verify.sh -> exit 0
+2) Test suite is green (`pytest -q` -> exit 0)
 3) Gatekeeper reports no blocker findings
 4) The acceptance checklist in __TZ_FILE__ is closed
 5) Required operations are implemented and test-covered:
@@ -115,7 +103,7 @@ Work in Phase 1..5 iterations until all conditions are satisfied:
 Validate phase completion by files, status markers, and operation-coverage evidence, not by agent summaries.
 If the backend skeleton is missing or clearly does not match the stack profile, assign Worker with the `backend-bootstrap` skill first instead of starting feature implementation in an empty repository.
 If the project has no reproducible dependency bootstrap entrypoint (`./scripts/dev-bootstrap.sh`, `make dev-bootstrap`, `task dev-bootstrap`, or equivalent), assign Devenv to bootstrap the environment first, and only then proceed to Worker/Tests/Monitor.
-If implementation/tests/verify need a running stack or API, assign Devenv first.
+If implementation/tests need a running stack or API, assign Devenv first.
 Do not let Worker/Tests/Monitor stall on ad hoc dependency installation; dependency bootstrap and startup flow belong to Devenv.
 After each successfully closed phase, create one local checkpoint commit with `./scripts/phase-commit.sh` before moving on.
 Commit message format: `phase-N: <short summary>`. Do not run `git push` automatically. Do not amend existing checkpoint commits.
@@ -124,7 +112,7 @@ Full review pass: first run security-reviewer, consistency-reviewer, and perform
 If you find a blocker, initiate a CR yourself, assign the right agent, and do one remediation pass.
 After remediation, rerun only the review domains affected by blocker findings, and only for changed files/flows from the blocker diff; do not ask review agents to scan the entire repository again.
 Gatekeeper must explicitly confirm required operation coverage is complete; missing implemented operations are blockers.
-If after remediation `./scripts/verify.sh` exits with code 0 and Gatekeeper returns `pass`, close Phase 5 immediately with a checkpoint commit and do not start another review cycle.
+If after remediation `pytest -q` exits with code 0 and Gatekeeper returns `pass`, close Phase 5 immediately with a checkpoint commit and do not start another review cycle.
 If a blocker remains after the targeted re-review, stop the automation loop and return a short unresolved-blocker summary with the next owner instead of starting another automatic retry.
 Stop only if external input is required (secret, access, business decision); then ask one concrete question.
 EOF
@@ -195,15 +183,12 @@ run_codex() {
   codex "${codex_args[@]}" "$prompt"
 }
 
-command_name="${1:-verify}"
+command_name="${1:-codex}"
 if [[ $# -gt 0 ]]; then
   shift
 fi
 
 case "$command_name" in
-  verify)
-    run_verify "$@"
-    ;;
   codex)
     run_codex codex "$@"
     ;;

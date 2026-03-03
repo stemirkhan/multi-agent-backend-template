@@ -13,7 +13,7 @@ Build a backend where:
 - architectural decisions are locked and agreed;
 - API and DB are compatible and stable;
 - required business operations from the spec/OpenAPI are fully implemented, not left as a bootstrap-only skeleton;
-- tests and verify runs are green;
+- tests are green;
 - there are no blocker risks in security or correctness.
 
 ## Create A New Backend From This Template
@@ -28,14 +28,7 @@ Build a backend where:
    - `make dev-bootstrap`
    - `make dev-up`
    - `make run-api`
-   - `make verify`
-5. Verify the template:
-
-```bash
-./run.sh verify
-```
-
-6. Run the first multi-agent pass:
+5. Run the first multi-agent pass:
 
 ```bash
 ./run.sh codex
@@ -57,7 +50,6 @@ If the new repository does not yet have a runnable backend skeleton, Orchestrato
 git clone https://github.com/stemirkhan/multi-agent-backend-template.git my-backend
 cd my-backend
 cp TZ_TEMPLATE.md backend_tz_from_template.md
-./run.sh verify
 ./run.sh codex backend_tz_from_template.md
 ```
 
@@ -82,8 +74,7 @@ cd /path/to/existing-backend
 git clone https://github.com/stemirkhan/multi-agent-backend-template.git /tmp/mab-template
 rsync -av --exclude '.git' /tmp/mab-template/ ./
 rm -rf /tmp/mab-template
-chmod +x run.sh scripts/verify.sh scripts/dev-bootstrap.sh
-./run.sh verify
+chmod +x run.sh scripts/dev-bootstrap.sh
 ./run.sh codex backend_tz_from_template.md
 ```
 
@@ -126,7 +117,6 @@ Default profile:
 - Cache/DB: `redis` + `postgres`
 - Dev containers: `podman` + `podman-compose`
 - API runtime: `uvicorn` -> `app.main:app`
-- Verify entrypoint: `./scripts/verify.sh`
 
 `project-stack.toml` is not a version lockfile. It is a machine-readable profile of technology choices and entrypoints that agents must read before making assumptions.
 
@@ -190,7 +180,7 @@ Default profile:
 ## Tests
 
 - Writes unit/integration/contract/security tests.
-- Reads `project-stack.toml` for test runner, DB/cache/message infra, and verify entrypoint.
+- Reads `project-stack.toml` for test runner and DB/cache/message infra.
 - Uses FastAPI/ASGI runtime for integration/contract scenarios.
 - Maintains `docs/test-matrix.md` as the canonical test coverage list.
 - Maintains the access matrix and negative scenarios.
@@ -224,20 +214,9 @@ Default profile:
 
 ## Monitor (read-only)
 
-- Runs the single verify entrypoint and summarizes results.
-- Treats `project-stack.toml` as the source of truth for verify entrypoint and container runtime.
+- Runs the agreed test/check command set and summarizes results.
+- Treats `project-stack.toml` as the source of truth for stack/tooling assumptions.
 - Does not change code.
-
-## Verify entrypoint order
-
-Machine-readable source of truth for verify: `project-stack.toml` (`verify_entrypoint`).
-
-If the stack profile entrypoint is missing or temporarily invalid, Monitor/Tests use the fallback order:
-
-1. `./scripts/verify.sh`
-2. `make verify`
-3. `task verify`
-4. fallback: commands from the README "How to test" section
 
 If dev uses containers, the default standard is `podman` + `podman-compose`.
 
@@ -269,7 +248,7 @@ Phase 3: Dev environment + implementation
 Phase 4: Testing
 
 - Tests add/update tests.
-- Monitor runs the verify entrypoint and publishes the result.
+- Monitor runs tests/checks and publishes the result.
 - Phase artifact: `docs/test-matrix.md`.
 - `docs/test-matrix.md` must include operation coverage mapping (`TZ requirement -> operationId -> tests`) for all in-scope operations.
 - After successful phase closure, Orchestrator creates a local checkpoint commit.
@@ -287,7 +266,7 @@ Checkpoint commit message format:
 - `phase-1: architecture and adr`
 - `phase-2: api and db contracts`
 - `phase-3: bootstrap and implementation`
-- `phase-4: tests and verify`
+- `phase-4: tests`
 - `phase-5: final review and gate`
 
 Checkpoint commits use `./scripts/phase-commit.sh`. The template does not run `git push` automatically.
@@ -370,7 +349,7 @@ The project is considered ready when:
 - `project-stack.toml` matches the real project stack and entrypoints (template defaults are valid if unchanged);
 - default phase artifacts are updated: `docs/architecture.md`, `docs/adr/ADR-*.md`, `openapi.yaml`, `docs/dev-environment.md`, `docs/schema-decisions.md`, `docs/test-matrix.md`, `docs/final-review.md`;
 - backend changes exist in source and/or migrations and/or tests (not only docs/.codex);
-- `./scripts/verify.sh` exits with code `0`;
+- test/check entrypoints for the repository exit with code `0`;
 - Gatekeeper reports no blocker issues after review.
 
 ## What a bad run looks like
@@ -384,21 +363,14 @@ A bad run for this template usually looks like:
 - `.env.example` is missing and secrets/local settings are spread across code or committed in `.env`;
 - services and repositories mixed responsibilities: business logic moved into repositories or transactions do `commit` / `rollback` outside service/UoW;
 - API returns raw library exceptions, internal-layer `HTTPException`, or messages containing PII/secrets;
-- Orchestrator stops at a summary even though `verify` is not green or Gatekeeper has blocker findings;
+- Orchestrator stops at a summary even though tests/checks are not green or Gatekeeper has blocker findings;
 - API and DB diverge without an explicit Change Request;
-- tests/verify require a running stack but Devenv was not used;
-- the first run did not leave reproducible startup/verify guidance for the next iteration.
+- tests require a running stack but Devenv was not used;
+- the first run did not leave reproducible startup/test guidance for the next iteration.
 
 ## Running via `run.sh`
 
 The project root includes `run.sh` for standard runs.
-
-Verification:
-
-```bash
-./run.sh
-./run.sh verify
-```
 
 Multi-agent Codex run:
 
@@ -438,21 +410,10 @@ Run modes:
 
 ## How to test
 
-Base verify entrypoint:
-
-```bash
-./run.sh verify
-```
-
-Direct verify script:
-
-```bash
-./scripts/verify.sh
-```
-
 Alternative entrypoints (if supported by the project):
 
 ```bash
-make verify
-task verify
+pytest -q
+ruff check .
+mypy .
 ```

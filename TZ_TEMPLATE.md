@@ -16,7 +16,6 @@ This section must stay synchronized with `project-stack.toml`.
 - Cache/DB: `redis` + `postgres`
 - Dev containers: `podman` + `podman-compose`
 - API runtime: `uvicorn` -> `app.main:app`
-- Verify entrypoint: `./scripts/verify.sh`
 
 ## 1. Goal And Scope
 ### 1.1 MVP Goal
@@ -140,7 +139,7 @@ This section must stay synchronized with `project-stack.toml`.
 - [ ] `Service` / `Repository` boundary is respected, transactions are not controlled from repositories
 - [ ] `project-stack.toml` matches the real project stack and entrypoints
 - [ ] Phase artifacts are updated: `docs/architecture.md`, `docs/adr/ADR-*.md`, `openapi.yaml`, `docs/dev-environment.md`, `docs/schema-decisions.md`, `docs/test-matrix.md`, `docs/final-review.md`
-- [ ] `./scripts/verify.sh` exits with code 0
+- [ ] Test/check entrypoints for this repository exit with code 0
 
 ## 14. Ownership By Agent
 - Architect: owns sections 5/6, `docs/architecture.md`, and architectural ADRs in `docs/adr/`
@@ -153,7 +152,7 @@ This section must stay synchronized with `project-stack.toml`.
 - Consistency Reviewer: idempotency, transactions, races, duplicate side effects review
 - Performance Reviewer: N+1, indexes, heavy sorts, query shape review
 - Gatekeeper: aggregates review findings and owns `docs/final-review.md`
-- Monitor: runs verify and summarizes results
+- Monitor: runs tests/checks and summarizes results
 
 ## 15. Default Phase Artifacts
 - Phase 1: `docs/architecture.md`, `docs/adr/ADR-*.md`

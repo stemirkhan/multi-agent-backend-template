@@ -50,7 +50,7 @@
 ## Rollout Plan
 1. Update `run.sh` prompt to enforce TZ-first contract generation.
 2. Update orchestrator/api/gatekeeper/tests agent instructions to use TZ-first mapping.
-3. Update `scripts/verify.sh` to allow missing pre-seeded `openapi.yaml`.
+3. Update template checks to allow missing pre-seeded `openapi.yaml`.
 4. Remove seed `openapi.yaml` from template root.
 5. Update README and TZ template guidance.
 
@@ -59,15 +59,15 @@
   - Teams need a permanent pre-seeded OpenAPI for template demos/training.
 - Safe rollback steps:
   - Restore seed `openapi.yaml`.
-  - Re-enable strict verify check for pre-seeded OpenAPI presence.
+  - Re-enable strict check for pre-seeded OpenAPI presence.
   - Keep TZ-first mapping rules for real runs, if desired.
 
 ## Verification
 - Checks/tests required:
-  - `./scripts/verify.sh` passes without root `openapi.yaml`.
+  - Test/check entrypoints pass without requiring root `openapi.yaml`.
   - `run.sh` prompt states TZ-first and Phase 2 OpenAPI generation.
   - Agent configs state TZ-first mapping and coverage requirements.
-- Expected verify result (`exit code 0`).
+- Expected check result (`exit code 0`).
 
 ## Open Questions
 - Do we need a dedicated machine-readable `operation inventory` file in addition to `docs/test-matrix.md`?
